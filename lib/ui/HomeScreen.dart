@@ -3,63 +3,29 @@ import 'package:sawjigrocerryapp/ui/CategoryScreen.dart';
 import 'package:sawjigrocerryapp/ui/CartScreen.dart';
 import 'dart:convert';
 import 'package:sawjigrocerryapp/services/product.service.dart';
+import 'package:sawjigrocerryapp/ui/DrawerScreen.dart';
+import 'package:sawjigrocerryapp/services/sharedPreference.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new Home();
 }
 
-class Photo {
-  Photo({
-    this.assetName,
-    this.assetPackage,
-    this.title,
-    this.caption,
-  });
-
-  final String assetName;
-  final String assetPackage;
-  final String title;
-  final String caption;
-}
-
 class Home extends State<HomeScreen> {
-  List list = ['12', '11'];
+  SharedPref sharedPref = SharedPref();
+  List list = [];
+  var user;
+  @override
+  void initState() {
+    super.initState();
+    loadSharedPrefs();
+  }
 
-  List<Photo> photos = <Photo>[
-    Photo(
-      assetName: 'images/veg.jpg',
-      title: 'Fruits & Vegetables',
-    ),
-    Photo(
-      assetName: 'images/frozen.jpg',
-      title: 'Frozen Veg',
-    ),
-    Photo(
-      assetName: 'images/bev.jpg',
-      title: 'Beverages',
-    ),
-    Photo(
-      assetName: 'images/brand_f.jpg',
-      title: 'Brannded Food',
-    ),
-    Photo(
-      assetName: 'images/be.jpg',
-      title: 'Beauty & Personal Care',
-    ),
-    Photo(
-      assetName: 'images/home.jpg',
-      title: 'Home Care & Fashion',
-    ),
-    Photo(
-      assetName: 'images/nonveg.jpg',
-      title: 'Non Veg',
-    ),
-    Photo(
-      assetName: 'images/eggs.jpg',
-      title: 'Dairy, Bakery & Eggs',
-    ),
-  ];
+  loadSharedPrefs() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    user = prefs.getString('userdetails');
+  }
 
   final List<String> items = ['Balbhadra', 'Maulik', 'Roshi'];
   static const double height = 366.0;
@@ -139,89 +105,7 @@ class Home extends State<HomeScreen> {
             )
           ],
         ),
-        drawer: new Drawer(
-          child: new ListView(
-            children: <Widget>[
-              new Card(
-                child: UserAccountsDrawerHeader(
-                  accountName: new Text("Naomi A. Schultz"),
-                  accountEmail: new Text("NaomiASchultz@armyspy.com"),
-                  onDetailsPressed: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => Account_Screen()));
-                  },
-                  decoration: new BoxDecoration(
-                    backgroundBlendMode: BlendMode.difference,
-                    color: Colors.white30,
-
-                    /* image: new DecorationImage(
-               //   image: new ExactAssetImage('assets/images/lake.jpeg'),
-                  fit: BoxFit.cover,
-                ),*/
-                  ),
-                  currentAccountPicture: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          "https://www.fakenamegenerator.com/images/sil-female.png")),
-                ),
-              ),
-              new Card(
-                elevation: 4.0,
-                child: new Column(
-                  children: <Widget>[
-                    new ListTile(
-                        leading: Icon(Icons.favorite),
-                        title: new Text(name),
-                        onTap: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context)=> Item_Screen(toolbarname: name,)));
-                        }),
-                    new Divider(),
-                    new ListTile(
-                        leading: Icon(Icons.history),
-                        title: new Text("Order History "),
-                        onTap: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context)=> Oder_History(toolbarname: ' Order History',)));
-                        }),
-                  ],
-                ),
-              ),
-              new Card(
-                elevation: 4.0,
-                child: new Column(
-                  children: <Widget>[
-                    new ListTile(
-                        leading: Icon(Icons.settings),
-                        title: new Text("Setting"),
-                        onTap: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context)=> Setting_Screen(toolbarname: 'Setting',)));
-                        }),
-                    new Divider(),
-                    new ListTile(
-                        leading: Icon(Icons.help),
-                        title: new Text("Help"),
-                        onTap: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context)=> Help_Screen(toolbarname: 'Help',)));
-                        }),
-                  ],
-                ),
-              ),
-              new Card(
-                elevation: 4.0,
-                child: new ListTile(
-                    leading: Icon(Icons.power_settings_new),
-                    title: new Text(
-                      "Logout",
-                      style: new TextStyle(
-                          color: Colors.redAccent, fontSize: 17.0),
-                    ),
-                    onTap: () {
-                      // Navigator.push(context,MaterialPageRoute(builder: (context) => Login_Screen()));
-                    }),
-              )
-            ],
-          ),
-        ),
+        drawer: new DrawerScreen(),
         body: FutureBuilder(
             future: getallProductType(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -238,13 +122,13 @@ class Home extends State<HomeScreen> {
                             _verticalD(),
                             new GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CategoryScreen(
-                                              productType:
-                                                  'Fruits & Vegetables',
-                                            )));
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => CategoryScreen(
+                                //               productType:
+                                //                   'Fruits & Vegetables',
+                                //             )));
                               },
                               child: new Text(
                                 'Best value',
@@ -257,13 +141,13 @@ class Home extends State<HomeScreen> {
                             _verticalD(),
                             new GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CategoryScreen(
-                                              productType:
-                                                  'Fruits & Vegetables',
-                                            )));
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => CategoryScreen(
+                                //               productType:
+                                //                   'Fruits & Vegetables',
+                                //             )));
                               },
                               child: new Text(
                                 'Top sellers',
@@ -279,14 +163,14 @@ class Home extends State<HomeScreen> {
                               children: <Widget>[
                                 new GestureDetector(
                                   onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                CategoryScreen(
-                                                  productType:
-                                                      'Fruits & Vegetables',
-                                                )));
+                                    // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) =>
+                                    //             CategoryScreen(
+                                    //               productType:
+                                    //                   'Fruits & Vegetables',
+                                    //             )));
                                   },
                                   child: new Text(
                                     'All',
@@ -501,13 +385,13 @@ class Home extends State<HomeScreen> {
                               _verticalD(),
                               new GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => CategoryScreen(
-                                                productType:
-                                                    'Fruits & Vegetables',
-                                              )));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) => CategoryScreen(
+                                  //               productType:
+                                  //                   'Fruits & Vegetables',
+                                  //             )));
                                 },
                                 child: new Text(
                                   'Categories',
@@ -520,13 +404,13 @@ class Home extends State<HomeScreen> {
                               _verticalD(),
                               new GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => CategoryScreen(
-                                                productType:
-                                                    'Fruits & Vegetables',
-                                              )));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) => CategoryScreen(
+                                  //               productType:
+                                  //                   'Fruits & Vegetables',
+                                  //             )));
                                 },
                                 child: new Text(
                                   'Popular',
@@ -541,14 +425,14 @@ class Home extends State<HomeScreen> {
                                 children: <Widget>[
                                   new GestureDetector(
                                     onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CategoryScreen(
-                                                    productType:
-                                                        'Fruits & Vegetables',
-                                                  )));
+                                      // Navigator.push(
+                                      //     context,
+                                      //     MaterialPageRoute(
+                                      //         builder: (context) =>
+                                      //             CategoryScreen(
+                                      //               productType:
+                                      //                   'Fruits & Vegetables',
+                                      //             )));
                                     },
                                     child: new Text(
                                       'Whats New',
@@ -584,6 +468,8 @@ class Home extends State<HomeScreen> {
                                                   productType:
                                                         snapshot.data[index].id,
                                                 )));
+                                   
+                                    
                                   },
                                   child: new Container(
                                       margin: EdgeInsets.all(5.0),
@@ -602,7 +488,8 @@ class Home extends State<HomeScreen> {
                                                   children: <Widget>[
                                                     Positioned.fill(
                                                         child: Image.network(
-                                                    snapshot.data[index].images[0].url,
+                                                      snapshot.data[index]
+                                                          .images[0].url,
                                                       fit: BoxFit.cover,
                                                     )),
                                                     Container(
@@ -627,9 +514,11 @@ class Home extends State<HomeScreen> {
                                                                             productType:
                                                                                  snapshot.data[index].id,
                                                                           )));
+                                                        
                                                         },
                                                         child: new Text(
-                                                           snapshot.data[index].type,
+                                                          snapshot
+                                                              .data[index].type,
                                                           style: TextStyle(
                                                               fontSize: 18.0,
                                                               color:

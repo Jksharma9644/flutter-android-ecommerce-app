@@ -1,50 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sawjigrocerryapp/ui/customModal.dart';
 
 class RazorPayScreen extends StatefulWidget {
   double totalPrice;
-  RazorPayScreen({Key key,this.totalPrice});
+  String orderId;
+  var clinetInfo;
+  RazorPayScreen({Key key, this.totalPrice, this.orderId, this.clinetInfo});
 
   @override
-  State<StatefulWidget> createState() => Payment(totalPrice);
+  State<StatefulWidget> createState() =>
+      Payment(totalPrice, orderId, clinetInfo);
 }
 
 class Payment extends State<RazorPayScreen> {
   Razorpay _razorpay;
   double totalPrice;
-  Payment(this.totalPrice);
+  String orderId;
+  var clinetInfo;
+  Payment(this.totalPrice, this.orderId, this.clinetInfo);
   void initState() {
     super.initState();
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-     launchPayment();
+    launchPayment();
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    Fluttertoast.showToast(
-        msg: 'Error ' + response.code.toString() + ' ' + response.message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-        print(response);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: "Payment Failed ",
+        description:
+            "Your payment has been failed"  ,
+        buttonText: "Okay",
+      ),
+    );
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    Fluttertoast.showToast(
-        msg: 'Payment Success ' + response.paymentId,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.green,
-        textColor: Colors.black,
-        fontSize: 16.0);
-         print(response);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: "Payment Success",
+        description:
+            "Your order has been placed successfully",
+        buttonText: "Okay",
+      ),
+    );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
@@ -56,20 +62,24 @@ class Payment extends State<RazorPayScreen> {
         backgroundColor: Colors.green,
         textColor: Colors.black,
         fontSize: 16.0);
-         print(response);
+    print(response);
   }
 
   void launchPayment() async {
-    print(totalPrice );
-    
     var options = {
       'key': 'rzp_test_r5qsMwR8B6D5gY',
       'amount': totalPrice * 100,
+      "currency": "INR",
       'name': 'sawji',
+      "order_id": orderId,
       'description': 'Test payment from Flutter app',
-      'prefill': {'contact': '8433717330', 'email': 'jksharma7330@gmail.com'},
+      'prefill': {
+        'contact': clinetInfo['mobile'],
+        'email': clinetInfo['email']
+      },
     };
     try {
+      print(totalPrice);
       _razorpay.open(options);
     } catch (e) {
       debugPrint(e);
@@ -78,8 +88,6 @@ class Payment extends State<RazorPayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
+    return Scaffold();
   }
 }

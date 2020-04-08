@@ -1,15 +1,16 @@
-
 import 'package:flutter/material.dart';
 import 'package:sawjigrocerryapp/model/product-model.dart';
 import 'package:sawjigrocerryapp/ui/paymentScreen.dart';
-import  'package:sawjigrocerryapp/ui/razorPayScreen.dart';
+import 'package:sawjigrocerryapp/ui/razorPayScreen.dart';
+import 'package:sawjigrocerryapp/services/product.service.dart';
 
 class Checkout extends StatefulWidget {
-   final List<Products> items;
-   double totalPrice;
-  Checkout({Key key, this.items,this.totalPrice}) : super(key: key);
+  final List<Products> items;
+  double totalPrice;
+  var user;
+  Checkout({Key key, this.items, this.totalPrice , this .user}) : super(key: key);
   @override
-  State<StatefulWidget> createState() => check_out(items,totalPrice);
+  State<StatefulWidget> createState() => check_out(items, totalPrice , user);
 }
 
 class Item {
@@ -21,13 +22,41 @@ class Item {
 }
 
 class check_out extends State<Checkout> {
-   final List<Products> items;
-   double totalPrice;
-   check_out(this .items ,  this.totalPrice);
+  final List<Products> items;
+  String orderId;
+  double totalPrice;
+  var userDetails;
+  check_out(this.items, this.totalPrice , this.userDetails);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool checkboxValueA = true;
   bool checkboxValueB = false;
   bool checkboxValueC = false;
+
+  void placeOrder() async {
+    var order_list =convertOrderListToJson(items);
+    var request = {
+      "ORDER_DETAILS":order_list,
+      "CLIENT_ID": userDetails['user_id'],
+      "ORDER_STATUS": "pending",
+      "CLIENT_INFO": {"email":  userDetails['email'], "name": userDetails['name'], "userid": userDetails['user_id'], "address": []},
+      "TOTAL_AMOUNT": totalPrice,
+      "PAYMENT_STATUS": "pending",
+      "platform" :"android",
+      "PAYMENT_MODE":""
+    };
+    var responseRef = placeorder(request);
+      responseRef.then((res) => {checkOrderPlaced(res,request['CLIENT_INFO'])});
+
+
+  }
+  void checkOrderPlaced (res,clientInfo){
+    print(res);
+    if(res['status']){
+      orderId = res["OrderId"];
+       Navigator.push(context,MaterialPageRoute(builder: (context) => RazorPayScreen(totalPrice:totalPrice,orderId:orderId , clinetInfo: clientInfo)));
+    }
+
+  }
 
   IconData _backIcon() {
     switch (Theme.of(context).platform) {
@@ -56,7 +85,7 @@ class check_out extends State<Checkout> {
     // TODO: implement build
 
     final double height = MediaQuery.of(context).size.height;
-     double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.of(context).size.width;
 
     AppBar appBar = AppBar(
       leading: IconButton(
@@ -499,45 +528,40 @@ class check_out extends State<Checkout> {
                           padding: EdgeInsets.all(5.0),
                           child: new Container(
                             width: width,
-                          child: new Row(
-                            children: <Widget>[
-                                    Container(
-                                     width: width/2,
-                                      child:  Text(items[ind].name,
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.bold)),
-                                    ),
-                                     Container(
-                                     width: width/4,
-                                     child: Text( "Qty:" + items[ind].qty.toString(),
-                                     textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: Colors.black87,
-
-                                            fontWeight: FontWeight.bold)), 
-
-                                     ),
-                                     Container(
-                                      width: width*0.15,
-                                       child:Text('\₹' + (items[ind].qty * items[ind].netPrice).toString(),
+                            child: new Row(
+                              children: <Widget>[
+                                Container(
+                                  width: width / 2,
+                                  child: Text(items[ind].name,
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Container(
+                                  width: width / 4,
+                                  child: Text(
+                                      "Qty:" + items[ind].qty.toString(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Container(
+                                    width: width * 0.15,
+                                    child: Text(
+                                        '\₹' +
+                                            (items[ind].qty *
+                                                    items[ind].netPrice)
+                                                .toString(),
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             color: Colors.black87,
-                                            fontWeight: FontWeight.bold)) 
-                                     
-                                     )
-                                  
-                                   
-                                   ,
-                                  ],
-                          ),
-          
-                                 
-
+                                            fontWeight: FontWeight.bold))),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -545,51 +569,52 @@ class check_out extends State<Checkout> {
                   })),
         ],
       ),
-       bottomSheet: Container(
-              alignment: Alignment.bottomLeft,
-              height: 50.0,
-              child: Card(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(icon: Icon(Icons.info), onPressed: null),
-                    Text(
-                      'Total :',
-                      style: TextStyle(
-                          fontSize: 17.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '\₹ ${totalPrice}',
-                      style: TextStyle(fontSize: 17.0, color: Colors.black54),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: OutlineButton(
-                            borderSide:
-                                BorderSide(color: Colors.amber.shade500),
-                            child: const Text('CONFIRM ORDER'),
-                            textColor: Colors.amber.shade500,
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => RazorPayScreen(totalPrice:totalPrice)));
-                            },
-                            shape: new OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            )),
-                      ),
-                    ),
-                  ],
+      bottomSheet: Container(
+          alignment: Alignment.bottomLeft,
+          height: 50.0,
+          child: Card(
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                IconButton(icon: Icon(Icons.info), onPressed: null),
+                Text(
+                  'Total :',
+                  style: TextStyle(
+                      fontSize: 17.0,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
                 ),
-              )),
+                Text(
+                  '\₹ ${totalPrice}',
+                  style: TextStyle(fontSize: 17.0, color: Colors.black54),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: OutlineButton(
+                        borderSide: BorderSide(color: Colors.amber.shade500),
+                        child: const Text('CONFIRM ORDER'),
+                        textColor: Colors.amber.shade500,
+                        onPressed: () {
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => RazorPayScreen(totalPrice:totalPrice)));
+                          placeOrder();
+                        },
+                        shape: new OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        )),
+                  ),
+                ),
+              ],
+            ),
+          )),
     );
   }
+
   IconData _add_icon() {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
@@ -601,6 +626,7 @@ class check_out extends State<Checkout> {
     assert(false);
     return null;
   }
+
   IconData _sub_icon() {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:

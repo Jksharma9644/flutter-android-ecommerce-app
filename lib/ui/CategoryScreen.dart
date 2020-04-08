@@ -18,8 +18,7 @@ class CategoryScreen extends StatefulWidget {
 
 class Category extends State<CategoryScreen> with TickerProviderStateMixin {
   String productType;
-  List <Products>  cartItems;
-   
+  List<Products> cartItems;
 
   Category(this.productType);
   List<Tab> _tabs = List<Tab>();
@@ -46,8 +45,12 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
   }
 
   void getcategories(data) {
-    categories = data["CATEGORY"];
-    getTabs(categories.length);
+    setState(() {
+        categories = data["CATEGORY"];
+         getTabs(categories.length);
+    });
+  
+   
   }
 
   TabController getTabController() {
@@ -67,12 +70,11 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
     }
     return _generalWidgets;
   }
-  
 
   Widget getWidget(String category) {
     final Orientation orientation = MediaQuery.of(context).orientation;
     final double height = 2000;
-    
+
     return Container(
         child: FutureBuilder(
             future: getProductsByCategory(category),
@@ -103,11 +105,10 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                                       //                 productDetails: snapshot
                                       //                     .data[index]))
                                       //                     );
-                                     
-                                      setState((){
-                                       
+
+                                      setState(() {
                                         cartItems.add(snapshot.data[index]);
-                                        });
+                                      });
                                     },
                                     child: new Card(
                                         child: Column(
@@ -177,9 +178,6 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                                               ),
                                             ),
                                           ),
-                                          
-                                         
-                                        
                                         ])))));
                       } else {
                         return new Card(
@@ -239,7 +237,6 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                                   ),
                                 ),
                               ),
-                               
                             ]));
                       }
                     },
@@ -263,94 +260,151 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
       return null;
     }
 
-    return FutureBuilder(
-        future: getproductCategoriesById('5cb2f8b139322600041b6f0d'),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.data == null) {
-            return Container(child: Center(child: new Text('Loading')));
-          } else {
-            return DefaultTabController(
-                length: categories.length,
-                child: new Scaffold(
-                    appBar: AppBar(
-                      centerTitle: true,
-                      leading: IconButton(
-                        icon: Icon(_backIcon()),
-                        alignment: Alignment.centerLeft,
-                        tooltip: 'Back',
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+    if (categories.length == 0) {
+      return new Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: Icon(_backIcon()),
+            alignment: Alignment.centerLeft,
+            tooltip: 'Back',
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          title: Text(
+            'Sawji Grocerry Store',
+            style: TextStyle(fontSize: 16.0),
+          ),
+          actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Stack(
+                children: <Widget>[
+                  new IconButton(
+                      icon: new Icon(
+                        Icons.shopping_cart,
+                        color: Colors.black,
                       ),
-                      title: Text(
-                        'Sawji Grocerry Store',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      bottom: PreferredSize(
-                          child: TabBar(
-                              isScrollable: true,
-                              unselectedLabelColor: Colors.grey,
-                              indicatorColor: Colors.white,
-                              tabs: _tabs,
-                              controller: _tabController),
-                          preferredSize: Size.fromHeight(30.0)),
-                      actions: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child:Stack(
-                  children: <Widget>[
-                    new IconButton(
-                        icon: new Icon(
-                          Icons.shopping_cart,
-                          color: Colors.black,
-                        ),
-                        onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> Cart_screen(items:cartItems)));
-                        }),
-                         new Positioned(
-                        child: new Stack(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Cart_screen(items: cartItems)));
+                      }),
+                  new Positioned(
+                      child: new Stack(
+                    children: <Widget>[
+                      new Icon(Icons.brightness_1,
+                          size: 20.0, color: Colors.orange.shade500),
+                      cartItems.length == 0
+                          ? new Container()
+                          : new Positioned(
+                              top: 4.0,
+                              right: 5.5,
+                              child: new Center(
+                                child: new Text(
+                                  cartItems.length.toString(),
+                                  style: new TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              )),
+                    ],
+                  )),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return DefaultTabController(
+          length: categories.length,
+          child: new Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                leading: IconButton(
+                  icon: Icon(_backIcon()),
+                  alignment: Alignment.centerLeft,
+                  tooltip: 'Back',
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                title: Text(
+                  'Sawji Grocerry Store',
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                bottom: PreferredSize(
+                    child: TabBar(
+                        isScrollable: true,
+                        unselectedLabelColor: Colors.grey,
+                        indicatorColor: Colors.white,
+                        tabs: _tabs,
+                        controller: _tabController),
+                    preferredSize: Size.fromHeight(30.0)),
+                actions: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Stack(
+                      children: <Widget>[
+                        new IconButton(
+                            icon: new Icon(
+                              Icons.shopping_cart,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          Cart_screen(items: cartItems)));
+                            }),
+                        new Positioned(
+                            child: new Stack(
                           children: <Widget>[
                             new Icon(Icons.brightness_1,
                                 size: 20.0, color: Colors.orange.shade500),
-                               cartItems.length == 0
-                           ? new Container():
-                            new Positioned(
-                                top: 4.0,
-                                right: 5.5,
-                                child: new Center(
-                                  child: new Text(
-                                   cartItems.length.toString(),
-                                    style: new TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11.0,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                )),
+                            cartItems.length == 0
+                                ? new Container()
+                                : new Positioned(
+                                    top: 4.0,
+                                    right: 5.5,
+                                    child: new Center(
+                                      child: new Text(
+                                        cartItems.length.toString(),
+                                        style: new TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11.0,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    )),
                           ],
                         )),
-                  ],
-                ),
-
-                          //  new IconButton(
-                          //     icon: new Icon(
-                          //       Icons.shopping_cart,
-                          //       color: Colors.black,
-                          //     ),
-                          //     onPressed: () {
-                          //       Navigator.push(
-                          //           context,
-                          //           MaterialPageRoute(
-                          //               builder: (context) => Cart_screen()));
-                          //     }),
-                              
-                        ),
                       ],
                     ),
-                    body: TabBarView(
-                      controller: _tabController,
-                      children: getWidgets(),
-                    )));
-          }
-        });
+
+                    //  new IconButton(
+                    //     icon: new Icon(
+                    //       Icons.shopping_cart,
+                    //       color: Colors.black,
+                    //     ),
+                    //     onPressed: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => Cart_screen()));
+                    //     }),
+                  ),
+                ],
+              ),
+              body: TabBarView(
+                controller: _tabController,
+                children: getWidgets(),
+              )));
+    }
   }
 }

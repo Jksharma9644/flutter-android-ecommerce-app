@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:sawjigrocerryapp/model/product-model.dart';
 import 'package:sawjigrocerryapp/ui/CheckoutScreen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sawjigrocerryapp/ui/UserScreen.dart';
 class Cart_screen extends StatefulWidget {
   List<Products> items;
- 
+
   Cart_screen({Key key, this.items}) : super(key: key);
   @override
   State<StatefulWidget> createState() => Cart(items);
@@ -12,7 +14,7 @@ class Cart_screen extends StatefulWidget {
 
 class Cart extends State<Cart_screen> {
   List<Products> cartItems;
-   double totalPrice = 0 ;
+  double totalPrice = 0;
   Cart(this.cartItems);
   IconData _add_icon() {
     switch (Theme.of(context).platform) {
@@ -37,25 +39,24 @@ class Cart extends State<Cart_screen> {
     assert(false);
     return null;
   }
+
   @override
   void initState() {
-     super.initState();
+    super.initState();
     setState(() {
-       for (var items in cartItems) {
-        totalPrice += items.qty *  double.parse(items.mrp);
-         }
-      
+      for (var items in cartItems) {
+        totalPrice += items.qty * double.parse(items.mrp);
+      }
     });
   }
 
   void addItem(index) {
     setState(() {
       this.cartItems[index].qty = this.cartItems[index].qty + 1;
-        totalPrice =0;
+      totalPrice = 0;
       for (var items in cartItems) {
-        totalPrice +=  items.qty * items.netPrice;
-         }
-
+        totalPrice += items.qty * items.netPrice;
+      }
     });
   }
 
@@ -63,12 +64,11 @@ class Cart extends State<Cart_screen> {
     setState(() {
       if (this.cartItems[index].qty > 0) {
         this.cartItems[index].qty = this.cartItems[index].qty - 1;
-        
       }
-       totalPrice =0;
-       for (var items in cartItems) {
+      totalPrice = 0;
+      for (var items in cartItems) {
         totalPrice += items.qty * items.netPrice;
-         }
+      }
     });
   }
 
@@ -117,7 +117,9 @@ class Cart extends State<Cart_screen> {
             ])),
         trailing: new Container(
           child: Text(
-            "₹ " + (this.cartItems[index].qty * this.cartItems[index].netPrice).toString(),
+            "₹ " +
+                (this.cartItems[index].qty * this.cartItems[index].netPrice)
+                    .toString(),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.orange,
@@ -148,51 +150,67 @@ class Cart extends State<Cart_screen> {
                 color: Colors.grey[400],
               );
             }),
-        bottomSheet: 
-        Container(
-              alignment: Alignment.bottomLeft,
-              height: 50.0,
-              child: Card(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(icon: Icon(Icons.info), onPressed: null),
-                    Text(
-                      'Total :',
-                      style: TextStyle(
-                          fontSize: 17.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
+        bottomSheet: Container(
+            alignment: Alignment.bottomLeft,
+            height: 50.0,
+            child: Card(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconButton(icon: Icon(Icons.info), onPressed: null),
+                  Text(
+                    'Total :',
+                    style: TextStyle(
+                        fontSize: 17.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '\₹ ${totalPrice}',
+                    style: TextStyle(fontSize: 17.0, color: Colors.black54),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: OutlineButton(
+                          borderSide: BorderSide(color: Colors.amber.shade500),
+                          child: const Text('Checkout '),
+                          textColor: Colors.amber.shade500,
+                          onPressed: () async{
+                              SharedPreferences prefs;
+                              var user;
+                             prefs = await SharedPreferences.getInstance();
+                            user = prefs.getString('userdetails');
+                            if (user == null) {
+                               Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Login_Screen()));
+                            }
+                             else {
+                              user = json.decode(user);
+                               Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Checkout(
+                                        items: cartItems,
+                                        totalPrice: totalPrice,
+                                        user:user
+                                        )));
+                            }
+                           
+                          },
+                          shape: new OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          )),
                     ),
-                    Text(
-                      '\₹ ${totalPrice}',
-                      style: TextStyle(fontSize: 17.0, color: Colors.black54),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: OutlineButton(
-                            borderSide:
-                                BorderSide(color: Colors.amber.shade500),
-                            child: const Text('Checkout '),
-                            textColor: Colors.amber.shade500,
-                            onPressed: () {
-                              Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => Checkout(items:cartItems,totalPrice:totalPrice)));
-                            },
-                            shape: new OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            )),
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-        
-        
-        
+                  ),
+                ],
+              ),
+            ))
+
         // Container(
         //     width: width,
         //     color: Colors.orange,
@@ -220,7 +238,7 @@ class Cart extends State<Cart_screen> {
         //         ),
         //       ),
         //     ]))
-            
-            );
+
+        );
   }
 }
