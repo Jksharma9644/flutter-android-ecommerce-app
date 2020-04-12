@@ -4,7 +4,7 @@ import 'package:sawjigrocerryapp/model/product-model.dart';
 class MainModel extends Model {
   List<Products> cartList=[];
   int cartItemsCount=0;
-  int cartTotal;
+  double cartTotal;
 
   List<Products> get cartItems{
     return cartList;

@@ -44,8 +44,8 @@ class check_out extends State<Checkout> {
     super.initState();
     loadSharedPrefs();
   }
-  void placeOrder() async {
-    var order_list = convertOrderListToJson(items);
+  void placeOrder(MainModel model) async {
+    var order_list = convertOrderListToJson(model.cartList);
     var request = {
       "ORDER_DETAILS": order_list,
       "CLIENT_ID": userDetails['user_id'],
@@ -56,13 +56,13 @@ class check_out extends State<Checkout> {
         "userid": userDetails['user_id'],
         "address": []
       },
-      "TOTAL_AMOUNT": totalPrice,
+      "TOTAL_AMOUNT": model.cartTotal,
       "PAYMENT_STATUS": "pending",
       "platform": "android",
       "PAYMENT_MODE": ""
     };
     var responseRef = placeorder(request);
-    responseRef.then((res) => {checkOrderPlaced(res, request['CLIENT_INFO'])});
+    responseRef.then((res) => {checkOrderPlaced(res, request['CLIENT_INFO'] , model)});
   }
 
   loadSharedPrefs() async {
@@ -76,7 +76,7 @@ class check_out extends State<Checkout> {
     });
   }
 
-  void checkOrderPlaced(res, clientInfo) {
+  void checkOrderPlaced(res, clientInfo , model) {
     print(res);
     if (res['status']) {
       orderId = res["OrderId"];
@@ -84,7 +84,7 @@ class check_out extends State<Checkout> {
           context,
           MaterialPageRoute(
               builder: (context) => RazorPayScreen(
-                  totalPrice: totalPrice,
+                  totalPrice:model.cartTotal,
                   orderId: orderId,
                   clinetInfo: clientInfo)));
     }
@@ -694,7 +694,7 @@ class check_out extends State<Checkout> {
                             //     context,
                             //     MaterialPageRoute(
                             //         builder: (context) => RazorPayScreen(totalPrice:totalPrice)));
-                            placeOrder();
+                            placeOrder(model);
                           },
                           shape: new OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
