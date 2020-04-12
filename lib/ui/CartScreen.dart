@@ -4,18 +4,21 @@ import 'package:sawjigrocerryapp/model/product-model.dart';
 import 'package:sawjigrocerryapp/ui/CheckoutScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sawjigrocerryapp/ui/UserScreen.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:sawjigrocerryapp/scopedmodel/main.dart';
+
 class Cart_screen extends StatefulWidget {
   List<Products> items;
 
-  Cart_screen({Key key, this.items}) : super(key: key);
+  Cart_screen({Key key}) : super(key: key);
   @override
-  State<StatefulWidget> createState() => Cart(items);
+  State<StatefulWidget> createState() => Cart();
 }
 
 class Cart extends State<Cart_screen> {
   List<Products> cartItems;
   double totalPrice = 0;
-  Cart(this.cartItems);
+  Cart();
   IconData _add_icon() {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
@@ -43,46 +46,21 @@ class Cart extends State<Cart_screen> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      for (var items in cartItems) {
-        totalPrice += items.qty * double.parse(items.mrp);
-      }
-    });
   }
 
-  void addItem(index) {
-    setState(() {
-      this.cartItems[index].qty = this.cartItems[index].qty + 1;
-      totalPrice = 0;
-      for (var items in cartItems) {
-        totalPrice += items.qty * items.netPrice;
-      }
-    });
-  }
 
-  void decreaseItem(index) {
-    setState(() {
-      if (this.cartItems[index].qty > 0) {
-        this.cartItems[index].qty = this.cartItems[index].qty - 1;
-      }
-      totalPrice = 0;
-      for (var items in cartItems) {
-        totalPrice += items.qty * items.netPrice;
-      }
-    });
-  }
 
-  _buildCartProduct(int index) {
+  _buildCartProduct(int index, MainModel model) {
     return ListTile(
         contentPadding: EdgeInsets.all(20.0),
         leading: Image.network(
-          cartItems[index].images[0].url,
+          model.cartList[index].images[0].url,
           height: 200.0,
           width: 80.0,
           fit: BoxFit.contain,
         ),
         title: Text(
-          cartItems[index].name,
+          model.cartList[index].name,
           textAlign: TextAlign.left,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
@@ -90,7 +68,7 @@ class Cart extends State<Cart_screen> {
             padding: EdgeInsets.all(2.0),
             child: new Row(children: <Widget>[
               new Text(
-                'MRP : ₹${cartItems[index].netPrice}',
+                'MRP : ₹${model.cartList[index].netPrice}',
                 textAlign: TextAlign.left,
                 style: TextStyle(
                     color: Colors.orange,
@@ -101,24 +79,26 @@ class Cart extends State<Cart_screen> {
               new IconButton(
                 icon: Icon(_add_icon(), color: Colors.amber.shade500),
                 onPressed: () {
-                  addItem(index);
+                    model.updateQuantity(index, 'add');
+                 
                 },
               ),
               Text(
-                this.cartItems[index].qty.toString(),
+                model.cartList[index].qty.toString(),
                 style: TextStyle(fontSize: 20.0, color: Colors.black87),
               ),
               new IconButton(
                 icon: Icon(_sub_icon(), color: Colors.amber.shade500),
                 onPressed: () {
-                  decreaseItem(index);
+                  // decreaseItem(index, model);
+                 model.updateQuantity(index, 'sub');
                 },
               ),
             ])),
         trailing: new Container(
           child: Text(
             "₹ " +
-                (this.cartItems[index].qty * this.cartItems[index].netPrice)
+                (model.cartList[index].qty * model.cartList[index].netPrice)
                     .toString(),
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -132,113 +112,114 @@ class Cart extends State<Cart_screen> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: new AppBar(
-            backgroundColor: Colors.white,
-            title: Text(
-              'Shopping Cart(${cartItems.length})',
-              style: new TextStyle(color: Colors.black),
-            )),
-        body: ListView.separated(
-            itemCount: cartItems.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildCartProduct(index);
-            },
-            separatorBuilder: (context, index) {
-              return Divider(
-                color: Colors.grey[400],
-              );
-            }),
-        bottomSheet: Container(
-            alignment: Alignment.bottomLeft,
-            height: 50.0,
-            child: Card(
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(icon: Icon(Icons.info), onPressed: null),
-                  Text(
-                    'Total :',
-                    style: TextStyle(
-                        fontSize: 17.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '\₹ ${totalPrice}',
-                    style: TextStyle(fontSize: 17.0, color: Colors.black54),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: OutlineButton(
-                          borderSide: BorderSide(color: Colors.amber.shade500),
-                          child: const Text('Checkout '),
-                          textColor: Colors.amber.shade500,
-                          onPressed: () async{
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: new AppBar(
+              backgroundColor: Colors.white,
+              title: Text(
+                'Shopping Cart(${model.cartList.length})',
+                style: new TextStyle(color: Colors.black),
+              )),
+          body: ListView.separated(
+              itemCount: model.cartList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _buildCartProduct(index, model);
+              },
+              separatorBuilder: (context, index) {
+                return Divider(
+                  color: Colors.grey[400],
+                );
+              }),
+          bottomSheet: Container(
+              alignment: Alignment.bottomLeft,
+              height: 50.0,
+              child: Card(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(icon: Icon(Icons.info), onPressed: null),
+                    Text(
+                      'Total :',
+                      style: TextStyle(
+                          fontSize: 17.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '\₹ ${model.cartTotal}',
+                      style: TextStyle(fontSize: 17.0, color: Colors.black54),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: OutlineButton(
+                            borderSide:
+                                BorderSide(color: Colors.amber.shade500),
+                            child: const Text('Checkout '),
+                            textColor: Colors.amber.shade500,
+                            onPressed: () async {
                               SharedPreferences prefs;
                               var user;
-                             prefs = await SharedPreferences.getInstance();
-                            user = prefs.getString('userdetails');
-                            if (user == null) {
-                               Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Login_Screen()));
-                            }
-                             else {
-                              user = json.decode(user);
-                               Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Checkout(
-                                        items: cartItems,
-                                        totalPrice: totalPrice,
-                                        user:user
-                                        )));
-                            }
-                           
-                          },
-                          shape: new OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          )),
+                              prefs = await SharedPreferences.getInstance();
+                              user = prefs.getString('userdetails');
+                              if (user == null) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Login_Screen()));
+                              } else {
+                                user = json.decode(user);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Checkout(
+                                            items: model.cartList,
+                                            totalPrice: totalPrice,
+                                            user: user)));
+                              }
+                            },
+                            shape: new OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            )),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ))
+                  ],
+                ),
+              ))
 
-        // Container(
-        //     width: width,
-        //     color: Colors.orange,
-        //     child: new Row(children: <Widget>[
-        //       new Container(
-        //           margin: EdgeInsets.all(15),
-        //           width: width * 0.45,
-        //           child: Text(
-        //             "Total:" +totalPrice.toString(),
-        //             textAlign: TextAlign.left,
-        //             style: TextStyle(
-        //                 color: Colors.black, fontWeight: FontWeight.w600),
-        //           )),
-        //       new Container(
-        //         width: (width * 0.45),
-        //         margin: EdgeInsets.only(left: 2),
-        //         child: OutlineButton(
-        //           borderSide: BorderSide(color: Colors.white),
-        //           child: const Text('Checkout'),
-        //           textColor: Colors.black,
-        //           onPressed: () {
-        //             Navigator.push(context,
-        //                 MaterialPageRoute(builder: (context) => Checkout(items:cartItems,totalPrice:totalPrice)));
-        //           },
-        //         ),
-        //       ),
-        //     ]))
+          // Container(
+          //     width: width,
+          //     color: Colors.orange,
+          //     child: new Row(children: <Widget>[
+          //       new Container(
+          //           margin: EdgeInsets.all(15),
+          //           width: width * 0.45,
+          //           child: Text(
+          //             "Total:" +totalPrice.toString(),
+          //             textAlign: TextAlign.left,
+          //             style: TextStyle(
+          //                 color: Colors.black, fontWeight: FontWeight.w600),
+          //           )),
+          //       new Container(
+          //         width: (width * 0.45),
+          //         margin: EdgeInsets.only(left: 2),
+          //         child: OutlineButton(
+          //           borderSide: BorderSide(color: Colors.white),
+          //           child: const Text('Checkout'),
+          //           textColor: Colors.black,
+          //           onPressed: () {
+          //             Navigator.push(context,
+          //                 MaterialPageRoute(builder: (context) => Checkout(items:cartItems,totalPrice:totalPrice)));
+          //           },
+          //         ),
+          //       ),
+          //     ]))
 
-        );
+          );
+    });
   }
 }

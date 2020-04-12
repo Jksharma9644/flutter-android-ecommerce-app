@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sawjigrocerryapp/services/auth.service.dart';
+import 'package:sawjigrocerryapp/ui/customModal.dart';
+
 class Signup_Screen extends StatefulWidget {
 
 
@@ -313,10 +315,31 @@ class signup extends State<Signup_Screen> {
     }
   }
 
-  void showInSnackBar(String value) {
-    scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(value)
-    ));
+  void showInSnackBar(res) {
+    print(res);
+    if(res['status']==true){
+      showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: "Success",
+        description:res['message'],
+        buttonText: "Login",
+      ),
+    );
+    } 
+    else{
+      showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: "Failed",
+      description:res['message'],
+        buttonText: "",
+      ),
+    );
+    }
+    // scaffoldKey.currentState.showSnackBar(SnackBar(
+    //     content: Text(value)
+    // ));
   }
   void _performSignUp() {
     // This is just a demo, so no actual login here.
@@ -328,7 +351,7 @@ class signup extends State<Signup_Screen> {
       'platform':'android'
     };
     var responseRef = signUp(request);
-    responseRef.then((res) => showInSnackBar(res.message));
+    responseRef.then((res) => showInSnackBar(res));
     // Navigator.push(context, MaterialPageRoute(builder: (context)=> Login_Screen()));
   }
 

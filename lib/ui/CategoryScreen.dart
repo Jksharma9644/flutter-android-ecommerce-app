@@ -6,7 +6,9 @@ import 'package:sawjigrocerryapp/model/product-model.dart';
 import 'package:sawjigrocerryapp/services/product.service.dart';
 import 'package:sawjigrocerryapp/ui/ProductDetailsScreen.dart';
 import 'package:sawjigrocerryapp/ui/CartScreen.dart';
-
+import 'package:sawjigrocerryapp/ui/gridViewScreen.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:sawjigrocerryapp/scopedmodel/main.dart';
 class CategoryScreen extends StatefulWidget {
   final String productType;
 
@@ -63,15 +65,15 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
     );
   }
 
-  List<Widget> getWidgets() {
+  List<Widget> getWidgets(global) {
     _generalWidgets.clear();
     for (int i = 0; i < _tabs.length; i++) {
-      _generalWidgets.add(getWidget(categories[i]['value']));
+      _generalWidgets.add(getWidget(categories[i]['value'], global));
     }
     return _generalWidgets;
   }
 
-  Widget getWidget(String category) {
+  Widget getWidget(String category ,MainModel  global) {
     final Orientation orientation = MediaQuery.of(context).orientation;
     final double height = 2000;
 
@@ -83,164 +85,7 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                 return Container(child: Center(child: new Text('Loading')));
               } else {
                 return Container(
-                  child: GridView.builder(
-                    itemCount: snapshot.data.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            (orientation == Orientation.portrait) ? 2 : 3),
-                    itemBuilder: (BuildContext context, int index) {
-                      if (snapshot.data[index].images.length > 0) {
-                        return SafeArea(
-                            top: false,
-                            bottom: false,
-                            child: SizedBox(
-                                height: 800,
-                                child: new GestureDetector(
-                                    onTap: () {
-                                      // Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //         builder: (context) =>
-                                      //             ProductDetailsScreen(
-                                      //                 productDetails: snapshot
-                                      //                     .data[index]))
-                                      //                     );
-
-                                      setState(() {
-                                        cartItems.add(snapshot.data[index]);
-                                      });
-                                    },
-                                    child: new Card(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                          SizedBox(
-                                            height: 150.0,
-                                            child: Stack(
-                                              children: <Widget>[
-                                                Positioned.fill(
-                                                  child: Image.network(
-                                                    snapshot.data[index]
-                                                        .images[0].url,
-                                                    // package: destination.assetPackage,
-                                                    fit: BoxFit.scaleDown,
-                                                  ),
-                                                ),
-                                                Container(
-                                                  alignment: Alignment.topLeft,
-                                                  // padding: EdgeInsets.all(5.0),
-                                                  child: IconButton(
-                                                      icon: const Icon(Icons
-                                                          .favorite_border),
-                                                      onPressed: () {}),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Divider(),
-                                          Expanded(
-                                            child: Container(
-                                              height: 200,
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      16.0, 16.0, 16.0, 0.0),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: <Widget>[
-                                                  // three line description
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 8.0),
-                                                    child: Text(
-                                                      'QTY :' +
-                                                          snapshot
-                                                              .data[index].qty
-                                                              .toString(),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 8.0),
-                                                      child: Text('MRP : ₹' +
-                                                          snapshot.data[index]
-                                                              .mrp)),
-                                                  // Text(destination.description[1]),
-                                                  // Text(destination.description[2]),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ])))));
-                      } else {
-                        return new Card(
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                              SizedBox(
-                                height: 150.0,
-                                child: Stack(
-                                  children: <Widget>[
-                                    Positioned.fill(
-                                      child: Image.asset(
-                                        'images/no-images.png',
-                                        // package: destination.assetPackage,
-                                        fit: BoxFit.scaleDown,
-                                      ),
-                                    ),
-                                    Container(
-                                      alignment: Alignment.topLeft,
-                                      // padding: EdgeInsets.all(5.0),
-                                      child: IconButton(
-                                          icon:
-                                              const Icon(Icons.favorite_border),
-                                          onPressed: () {}),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      16.0, 16.0, 16.0, 0.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      // three line description
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 8.0),
-                                        child: Text(
-                                          'QTY :' +
-                                              snapshot.data[index].qty
-                                                  .toString(),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 8.0),
-                                          child: Text('MRP : ₹' +
-                                              snapshot.data[index].mrp)),
-                                      // Text(destination.description[1]),
-                                      // Text(destination.description[2]),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ]));
-                      }
-                    },
-                  ),
+                  child: GridViewScreen(products:snapshot.data ,model: global)
                 );
               }
             }));
@@ -259,8 +104,9 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
       assert(false);
       return null;
     }
-
-    if (categories.length == 0) {
+ return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+           if (categories.length == 0) {
       return new Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -276,48 +122,114 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
             'Sawji Grocerry Store',
             style: TextStyle(fontSize: 16.0),
           ),
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Stack(
-                children: <Widget>[
-                  new IconButton(
-                      icon: new Icon(
-                        Icons.shopping_cart,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    Cart_screen(items: cartItems)));
-                      }),
-                  new Positioned(
-                      child: new Stack(
-                    children: <Widget>[
-                      new Icon(Icons.brightness_1,
-                          size: 20.0, color: Colors.orange.shade500),
-                      cartItems.length == 0
-                          ? new Container()
-                          : new Positioned(
-                              top: 4.0,
-                              right: 5.5,
-                              child: new Center(
-                                child: new Text(
-                                  cartItems.length.toString(),
-                                  style: new TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11.0,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              )),
-                    ],
-                  )),
-                ],
+          // actions: <Widget>[
+          //   Padding(
+          //     padding: const EdgeInsets.only(right: 16.0),
+          //     child: Stack(
+          //       children: <Widget>[
+          //         new IconButton(
+          //             icon: new Icon(
+          //               Icons.shopping_cart,
+          //               color: Colors.black,
+          //             ),
+          //             onPressed: () {
+          //               Navigator.push(
+          //                   context,
+          //                   MaterialPageRoute(
+          //                       builder: (context) =>
+          //                           Cart_screen()));
+          //             }),
+          //         new Positioned(
+          //             child: new Stack(
+          //           children: <Widget>[
+          //             new Icon(Icons.brightness_1,
+          //                 size: 20.0, color: Colors.orange.shade500),
+          //             model.cartItemsCount == 0
+          //                 ? new Container()
+          //                 : new Positioned(
+          //                     top: 4.0,
+          //                     right: 5.5,
+          //                     child: new Center(
+          //                       child: new Text(
+          //                        model.cartItemsCount.toString(),
+          //                         style: new TextStyle(
+          //                             color: Colors.white,
+          //                             fontSize: 11.0,
+          //                             fontWeight: FontWeight.w500),
+          //                       ),
+          //                     )),
+          //           ],
+          //         )),
+          //       ],
+          //     ),
+          //   ),
+          // ],
+
+            actions: <Widget>[
+              IconButton(
+                tooltip: 'Search',
+                icon: const Icon(Icons.search),
+                onPressed: () async {
+                  final int selected = await showSearch<int>(
+                    context: context,
+                    //delegate: _delegate,
+                  );
+                },
               ),
-            ),
-          ],
+              new Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: new Container(
+                  height: 150.0,
+                  width: 30.0,
+                  child: new GestureDetector(
+                    onTap: () {
+                    Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          Cart_screen()));
+                    },
+                    child: Stack(
+                      children: <Widget>[
+                        new IconButton(
+                            icon: new Icon(
+                              Icons.shopping_cart,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Cart_screen()));
+                            }),
+                        model.cartItemsCount == 0
+                            ? new Container()
+                            : new Positioned(
+                                child: new Stack(
+                                children: <Widget>[
+                                  new Icon(Icons.brightness_1,
+                                      size: 20.0,
+                                      color: Colors.orange.shade500),
+                                  new Positioned(
+                                      top: 4.0,
+                                      right: 5.5,
+                                      child: new Center(
+                                        child: new Text(
+                                         model.cartItemsCount.toString(),
+                                          style: new TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11.0,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      )),
+                                ],
+                              )),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
         ),
       );
     } else {
@@ -361,21 +273,21 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          Cart_screen(items: cartItems)));
+                                          Cart_screen()));
                             }),
                         new Positioned(
                             child: new Stack(
                           children: <Widget>[
                             new Icon(Icons.brightness_1,
                                 size: 20.0, color: Colors.orange.shade500),
-                            cartItems.length == 0
+                              model.cartItemsCount == 0
                                 ? new Container()
                                 : new Positioned(
                                     top: 4.0,
                                     right: 5.5,
                                     child: new Center(
                                       child: new Text(
-                                        cartItems.length.toString(),
+                                        model.cartItemsCount.toString(),
                                         style: new TextStyle(
                                             color: Colors.white,
                                             fontSize: 11.0,
@@ -403,8 +315,11 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
               ),
               body: TabBarView(
                 controller: _tabController,
-                children: getWidgets(),
+                children: getWidgets(model),
               )));
     }
+
+        });
+    
   }
 }

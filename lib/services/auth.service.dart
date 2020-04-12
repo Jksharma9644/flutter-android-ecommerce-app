@@ -43,3 +43,22 @@ signIn(request) async {
     throw Exception('Failed to load album');
   }
 }
+updateProfile(request ,id) async{
+  var url = getbaseUrl();
+  final http.Response response = await http.put(
+    url + '/auth/editProfile/'+id,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(request),
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return json.decode(response.body);
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
+}

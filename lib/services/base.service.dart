@@ -4,7 +4,7 @@ import 'dart:convert';
 
 
 getbaseUrl() {
-  var uaturl = 'https://arcane-mesa-86746.herokuapp.com/';
+  var uaturl = 'https://ecommerce-backend-api.herokuapp.com/';
   final url = 'http://192.168.31.162:3000/';
-  return url;
+  return uaturl;
 }

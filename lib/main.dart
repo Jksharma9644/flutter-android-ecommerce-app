@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sawjigrocerryapp/ui/HomeScreen.dart';
 import 'dart:async';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:sawjigrocerryapp/scopedmodel/main.dart';
 
 
 void main() {
@@ -11,7 +13,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+  final MainModel _model = MainModel();
+   return ScopedModel<MainModel>(
+    model: _model,
+
+   child: new MaterialApp(
       title: 'Flutter Demo',
      theme: new ThemeData(
 
@@ -21,7 +27,8 @@ class MyApp extends StatelessWidget {
 
         ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+    ));
+    
   }
 }
 
@@ -55,13 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return new Container(
       alignment: Alignment.center,
-      decoration: new BoxDecoration(color : Colors.white),
+      decoration: new BoxDecoration(color : Color.fromRGBO(35, 177,77, 1)),
       child: new Container(
         color: Colors.black12,
         margin: new EdgeInsets.all(30.0),
         height: 250.0,
         width: 250.0,
-        child: new Image.asset('images/gro.jpg')
+        child: new Image.asset('images/logo.jpg')
       ),
     );
     
