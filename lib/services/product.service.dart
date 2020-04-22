@@ -6,7 +6,7 @@ import 'package:sawjigrocerryapp/model/category-modal.dart';
 import 'package:http/http.dart' as http;
 import 'package:sawjigrocerryapp/services/base.service.dart';
 
-
+ List<Products> aLLProductsList = [];
 Future<List<Products>> getProducts() async {
   var baseurl = getbaseUrl();
   var data = await http.get(baseurl + 'productlist/admin');
@@ -17,23 +17,26 @@ Future<List<Products>> getProducts() async {
     Products product = Products.fromJson(item);
     products.add(product);
   }
-  print(products.length);
-
+  aLLProductsList = products;
+  // print(products.length);
   return products;
 }
 
 getProductsByCategory(category) async {
-  var baseurl = getbaseUrl();
-  var data = await http.get(baseurl + 'product/' + category);
-  var jsonData = json.decode(data.body);
-  var jsonResponse = jsonData["data"];
-   List <Products> products = [];
-  for (var item in jsonResponse) {
-     Products product = Products.fromJson(item);
-    products.add(product);
-  }
-  print(products.length);
-  return products;
+  List<Products> _filteredProducts = [];
+  // var baseurl = getbaseUrl();
+  // var data = await http.get(baseurl + 'product/' + category);
+  // var jsonData = json.decode(data.body);
+  // var jsonResponse = jsonData["data"];
+  //  List <Products> products = [];
+  // for (var item in jsonResponse) {
+  //    Products product = Products.fromJson(item);
+  //   products.add(product);
+  // }
+  // print(products.length);
+  // return products;
+  _filteredProducts = aLLProductsList.where((product) => product.category==category).toList();
+  return _filteredProducts;
 }
 
 Future<List<ProductType>> getallProductType() async {

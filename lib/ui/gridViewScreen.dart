@@ -3,19 +3,20 @@ import 'package:sawjigrocerryapp/model/product-model.dart';
 import 'package:sawjigrocerryapp/ui/ProductDetailsScreen.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sawjigrocerryapp/scopedmodel/main.dart';
+
 class GridViewScreen extends StatefulWidget {
   List<Products> products;
   MainModel model;
-  GridViewScreen({Key key, this.products , this.model}) : super(key: key);
+  GridViewScreen({Key key, this.products, this.model}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => Grid(products,model);
+  State<StatefulWidget> createState() => Grid(products, model);
 }
 
 class Grid extends State<GridViewScreen> {
   List<Products> products;
   MainModel model;
-  Grid(this.products ,this .model);
+  Grid(this.products, this.model);
   @override
   Widget build(BuildContext context) {
     final Orientation orientation = MediaQuery.of(context).orientation;
@@ -87,24 +88,32 @@ class Grid extends State<GridViewScreen> {
                             ),
                           ),
                         ),
-                        new Center(
-                          child: FlatButton(
-                            color: Colors.redAccent,
-                            child: const Text('Add to Cart'),
-                            shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0)),
-                            textColor: Colors.white,
-                            onPressed: () {
-                              // launch(data[index]["link"],
-                              //     forceWebView: false);
-                              model.incrementCount();
-                              model.addCartItems(products[index]);
-                            },
-                          ),
-                        )
+                        new Container(
+                            padding: EdgeInsets.all(10),
+                            child: new Center(
+                                child: new SizedBox(
+                              height: 25.0,
+                              child: FlatButton(
+                                color: Colors.redAccent,
+                                child: const Text(
+                                  'Add to Cart',
+                                  style: TextStyle(fontSize: 12.0),
+                                ),
+                                shape: new RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(30.0)),
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  // launch(data[index]["link"],
+                                  //     forceWebView: false);
+                                  model.incrementCount();
+                                  model.addCartItems(products[index]);
+                                },
+                              ),
+                            )))
                       ]))));
         } else {
-           return SafeArea(
+          return SafeArea(
               top: false,
               bottom: false,
               child: new GestureDetector(
@@ -119,76 +128,82 @@ class Grid extends State<GridViewScreen> {
                     //   cartItems.add(products[index]);
                     // });
                   },
-                  child:  new Card(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(10),
-                  height: 100.0,
-                  child: Stack(
-                    children: <Widget>[
-                      Positioned.fill(
-                        child: Image.asset(
-                          'images/no-images.png',
-                          // package: destination.assetPackage,
-                          fit: BoxFit.scaleDown,
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.topLeft,
-                        // padding: EdgeInsets.all(5.0),
-                        child: IconButton(
-                            icon: const Icon(Icons.favorite_border),
-                            onPressed: () {
-
-                            }),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        // three line description
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            'QTY :' + products[index].qty.toString(),
-                            overflow: TextOverflow.ellipsis,
+                  child: new Card(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          height: 100.0,
+                          child: Stack(
+                            children: <Widget>[
+                              Positioned.fill(
+                                child: Image.asset(
+                                  'images/no-images.png',
+                                  // package: destination.assetPackage,
+                                  fit: BoxFit.scaleDown,
+                                ),
+                              ),
+                              // Container(
+                              //   alignment: Alignment.topLeft,
+                              //   // padding: EdgeInsets.all(5.0),
+                              //   child: IconButton(
+                              //       icon: const Icon(Icons.favorite_border),
+                              //       onPressed: () {}),
+                              // ),
+                            ],
                           ),
                         ),
-                        Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Text('MRP : ₹' + products[index].mrp)),
-                        // Text(destination.description[1]),
-                        // Text(destination.description[2]),
-                      ],
-                    ),
-                  ),
-                ),
-                new Center(
-                  child: FlatButton(
-                    color: Colors.redAccent,
-                    child: const Text('Add to Cart'),
-                    shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(30.0)),
-                    textColor: Colors.white,
-                    onPressed: () {
-                      // launch(data[index]["link"],
-                      //     forceWebView: false);
-                    },
-                  ),
-                )
-              ]))
-                  
-                  ));
-          
-          
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(
+                                16.0, 16.0, 16.0, 0.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                // three line description
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Text(
+                                    'QTY :' + products[index].qty.toString(),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child:
+                                        Text('MRP : ₹' + products[index].mrp)),
+                                // Text(destination.description[1]),
+                                // Text(destination.description[2]),
+                              ],
+                            ),
+                          ),
+                        ),
+                        new Container(
+                            padding: EdgeInsets.all(10),
+                            child: new Center(
+                                child: new SizedBox(
+                              height: 25.0,
+                              child: FlatButton(
+                                color: Colors.redAccent,
+                                child: const Text(
+                                  'Add to Cart',
+                                  style: TextStyle(fontSize: 12.0),
+                                ),
+                                shape: new RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(30.0)),
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  // launch(data[index]["link"],
+                                  //     forceWebView: false);
+                                  model.incrementCount();
+                                  model.addCartItems(products[index]);
+                                },
+                              ),
+                            )))
+                      ]))));
         }
       },
     );

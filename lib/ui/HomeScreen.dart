@@ -22,6 +22,7 @@ class Home extends State<HomeScreen> {
   void initState() {
     super.initState();
     loadSharedPrefs();
+    getProducts();
   }
 
   loadSharedPrefs() async {
