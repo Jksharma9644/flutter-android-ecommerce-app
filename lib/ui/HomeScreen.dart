@@ -30,7 +30,6 @@ class Home extends State<HomeScreen> {
     user = prefs.getString('userdetails');
   }
 
-  final List<String> items = ['Balbhadra', 'Maulik', 'Roshi'];
   static const double height = 366.0;
   String name = 'My Wishlist';
   @override

@@ -7,6 +7,7 @@ import 'package:sawjigrocerryapp/services/product.service.dart';
 import 'package:sawjigrocerryapp/ui/ProductDetailsScreen.dart';
 import 'package:sawjigrocerryapp/ui/CartScreen.dart';
 import 'package:sawjigrocerryapp/ui/gridViewScreen.dart';
+import './gridScreen2.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sawjigrocerryapp/scopedmodel/main.dart';
 class CategoryScreen extends StatefulWidget {

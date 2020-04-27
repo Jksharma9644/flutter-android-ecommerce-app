@@ -65,7 +65,7 @@ class Cart extends State<Cart_screen> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         subtitle: new Container(
-            padding: EdgeInsets.all(2.0),
+            // padding: EdgeInsets.all(2.0),
             child: new Row(children: <Widget>[
               new Text(
                 'MRP : ₹${model.cartList[index].netPrice}',
@@ -75,7 +75,7 @@ class Cart extends State<Cart_screen> {
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold),
               ),
-              Padding(padding: EdgeInsets.all(2.0)),
+              // Padding(padding: EdgeInsets.all(2.0)),
               new IconButton(
                 icon: Icon(_add_icon(), color: Colors.amber.shade500),
                 onPressed: () {

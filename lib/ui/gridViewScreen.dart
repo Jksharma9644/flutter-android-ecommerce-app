@@ -24,9 +24,8 @@ class Grid extends State<GridViewScreen> {
     return GridView.builder(
       itemCount: products.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: (orientation == Orientation.portrait) ? 2 : 3),
+          crossAxisCount: (orientation == Orientation.portrait) ? 1 : 3),
       itemBuilder: (BuildContext context, int index) {
-        if (products[index].images.length > 0) {
           return SafeArea(
               top: false,
               bottom: false,
@@ -43,17 +42,28 @@ class Grid extends State<GridViewScreen> {
                     // });
                   },
                   child: new Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(15.0),
+  ),
+                    margin: EdgeInsets.all(25),
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                         Container(
-                          padding: EdgeInsets.all(10),
-                          height: 100.0,
+                          padding: EdgeInsets.all(5),
+                          height: 150.0,
                           child: Stack(
                             children: <Widget>[
                               Positioned.fill(
-                                child: Image.network(
+                                child: products[index].images.length > 0
+                                ?Image.network(
                                   products[index].images[0].url,
+                                  // package: destination.assetPackage,
+                                  fit: BoxFit.fitHeight,
+                                )
+                                : Image.asset(
+                                  'images/no-images.png',
                                   // package: destination.assetPackage,
                                   fit: BoxFit.scaleDown,
                                 ),
@@ -61,6 +71,39 @@ class Grid extends State<GridViewScreen> {
                             ],
                           ),
                         ),
+                         new Container(
+                            padding: EdgeInsets.all(10),
+                            child: new Text(
+                               products[index].name,
+                               style: TextStyle(
+                                 fontSize: 18.0,
+                                 fontWeight: FontWeight.w600
+                               ),
+
+
+                            )
+                            // child: new Center(
+                            //     child: new SizedBox(
+                            //   height: 25.0,
+                            //   child: FlatButton(
+                            //     color: Colors.redAccent,
+                            //     child: const Text(
+                            //       'Add to Cart',
+                            //       style: TextStyle(fontSize: 12.0),
+                            //     ),
+                            //     shape: new RoundedRectangleBorder(
+                            //         borderRadius:
+                            //             new BorderRadius.circular(30.0)),
+                            //     textColor: Colors.white,
+                            //     onPressed: () {
+                            //       // launch(data[index]["link"],
+                            //       //     forceWebView: false);
+                            //       model.incrementCount();
+                            //       model.addCartItems(products[index]);
+                            //     },
+                            //   ),
+                            // ))
+                            ),
                         Expanded(
                           child: Container(
                             height: 300,
@@ -71,140 +114,51 @@ class Grid extends State<GridViewScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 // three line description
+                                
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 8.0),
                                   child: Text(
                                     'QTY :' + products[index].qty.toString(),
                                     overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 15.0
+                                    ),
                                   ),
                                 ),
                                 Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child:
-                                        Text('MRP : ₹' + products[index].mrp)),
+                                        Text('MRP : ₹' + products[index].mrp,
+                                         style: TextStyle(
+                                      fontSize: 15.0
+                                    ),
+                                        )),
                                 // Text(destination.description[1]),
                                 // Text(destination.description[2]),
                               ],
                             ),
                           ),
                         ),
-                        new Container(
-                            padding: EdgeInsets.all(10),
-                            child: new Center(
-                                child: new SizedBox(
-                              height: 25.0,
-                              child: FlatButton(
-                                color: Colors.redAccent,
-                                child: const Text(
-                                  'Add to Cart',
-                                  style: TextStyle(fontSize: 12.0),
-                                ),
-                                shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(30.0)),
-                                textColor: Colors.white,
-                                onPressed: () {
-                                  // launch(data[index]["link"],
-                                  //     forceWebView: false);
-                                  model.incrementCount();
-                                  model.addCartItems(products[index]);
-                                },
-                              ),
-                            )))
+                         new  Container(
+                           
+                           padding: EdgeInsets.all(10),
+                                        alignment: Alignment.bottomRight,
+                                        child: OutlineButton(
+                                            borderSide: BorderSide(
+                                                color: Colors.amber.shade500),
+                                            child: const Text('Add to cart'),
+                                            textColor: Colors.amber.shade500,
+                                            onPressed: () {
+                                              model.incrementCount();
+                                              model.addCartItems(products[index]);
+                                            },
+                                            shape: new OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            )),
+                                      ),
                       ]))));
-        } else {
-          return SafeArea(
-              top: false,
-              bottom: false,
-              child: new GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ProductDetailsScreen(
-                                productDetails: products[index])));
-
-                    // setState(() {
-                    //   cartItems.add(products[index]);
-                    // });
-                  },
-                  child: new Card(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          height: 100.0,
-                          child: Stack(
-                            children: <Widget>[
-                              Positioned.fill(
-                                child: Image.asset(
-                                  'images/no-images.png',
-                                  // package: destination.assetPackage,
-                                  fit: BoxFit.scaleDown,
-                                ),
-                              ),
-                              // Container(
-                              //   alignment: Alignment.topLeft,
-                              //   // padding: EdgeInsets.all(5.0),
-                              //   child: IconButton(
-                              //       icon: const Icon(Icons.favorite_border),
-                              //       onPressed: () {}),
-                              // ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(
-                                16.0, 16.0, 16.0, 0.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                // three line description
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                    'QTY :' + products[index].qty.toString(),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child:
-                                        Text('MRP : ₹' + products[index].mrp)),
-                                // Text(destination.description[1]),
-                                // Text(destination.description[2]),
-                              ],
-                            ),
-                          ),
-                        ),
-                        new Container(
-                            padding: EdgeInsets.all(10),
-                            child: new Center(
-                                child: new SizedBox(
-                              height: 25.0,
-                              child: FlatButton(
-                                color: Colors.redAccent,
-                                child: const Text(
-                                  'Add to Cart',
-                                  style: TextStyle(fontSize: 12.0),
-                                ),
-                                shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(30.0)),
-                                textColor: Colors.white,
-                                onPressed: () {
-                                  // launch(data[index]["link"],
-                                  //     forceWebView: false);
-                                  model.incrementCount();
-                                  model.addCartItems(products[index]);
-                                },
-                              ),
-                            )))
-                      ]))));
-        }
+      
       },
     );
   }
