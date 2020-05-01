@@ -324,6 +324,7 @@ class signup extends State<Signup_Screen> {
         title: "Success",
         description:res['message'],
         buttonText: "Login",
+        pageRedirection:"Login"
       ),
     );
     } 
@@ -332,8 +333,9 @@ class signup extends State<Signup_Screen> {
       context: context,
       builder: (BuildContext context) => CustomDialog(
         title: "Failed",
-      description:res['message'],
-        buttonText: "",
+        description:res['message'],
+         buttonText: "Try again",
+         pageRedirection:"Login"
       ),
     );
     }

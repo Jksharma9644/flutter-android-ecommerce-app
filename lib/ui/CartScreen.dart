@@ -6,10 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sawjigrocerryapp/ui/UserScreen.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sawjigrocerryapp/scopedmodel/main.dart';
+import '../services/auth.service.dart';
+import './customModal.dart';
 
 class Cart_screen extends StatefulWidget {
   List<Products> items;
-
   Cart_screen({Key key}) : super(key: key);
   @override
   State<StatefulWidget> createState() => Cart();
@@ -18,6 +19,7 @@ class Cart_screen extends StatefulWidget {
 class Cart extends State<Cart_screen> {
   List<Products> cartItems;
   double totalPrice = 0;
+  var profileData;
   Cart();
   IconData _add_icon() {
     switch (Theme.of(context).platform) {
@@ -48,8 +50,6 @@ class Cart extends State<Cart_screen> {
     super.initState();
   }
 
-
-
   _buildCartProduct(int index, MainModel model) {
     return ListTile(
         contentPadding: EdgeInsets.all(20.0),
@@ -67,34 +67,33 @@ class Cart extends State<Cart_screen> {
         subtitle: new Container(
             // padding: EdgeInsets.all(2.0),
             child: new Row(children: <Widget>[
-              new Text(
-                'MRP : ₹${model.cartList[index].netPrice}',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold),
-              ),
-              // Padding(padding: EdgeInsets.all(2.0)),
-              new IconButton(
-                icon: Icon(_add_icon(), color: Colors.amber.shade500),
-                onPressed: () {
-                    model.updateQuantity(index, 'add');
-                 
-                },
-              ),
-              Text(
-                model.cartList[index].qty.toString(),
-                style: TextStyle(fontSize: 20.0, color: Colors.black87),
-              ),
-              new IconButton(
-                icon: Icon(_sub_icon(), color: Colors.amber.shade500),
-                onPressed: () {
-                  // decreaseItem(index, model);
-                 model.updateQuantity(index, 'sub');
-                },
-              ),
-            ])),
+          new Text(
+            'MRP : ₹${model.cartList[index].netPrice}',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                color: Colors.orange,
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold),
+          ),
+          // Padding(padding: EdgeInsets.all(2.0)),
+          new IconButton(
+            icon: Icon(_add_icon(), color: Colors.amber.shade500),
+            onPressed: () {
+              model.updateQuantity(index, 'add');
+            },
+          ),
+          Text(
+            model.cartList[index].qty.toString(),
+            style: TextStyle(fontSize: 20.0, color: Colors.black87),
+          ),
+          new IconButton(
+            icon: Icon(_sub_icon(), color: Colors.amber.shade500),
+            onPressed: () {
+              // decreaseItem(index, model);
+              model.updateQuantity(index, 'sub');
+            },
+          ),
+        ])),
         trailing: new Container(
           child: Text(
             "₹ " +
@@ -112,6 +111,36 @@ class Cart extends State<Cart_screen> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+
+    setProfileData(res, user, model) {
+      if (res['status']) {
+        setState(() {
+          profileData = res['data'];
+          if (profileData['isNumberVerified'] == null ||
+              profileData['isNumberVerified'] == false) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => CustomDialog(
+                  title: "Mobile Number Not verify",
+                  description: "Please Verify Your Mobile Number",
+                  buttonText: "Send OTP",
+                  pageRedirection: "OTP",
+                  data: profileData,
+                  ),
+            );
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Checkout(
+                        items: model.cartList,
+                        totalPrice: totalPrice,
+                        user: user)));
+          }
+        });
+      }
+    }
+
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Scaffold(
@@ -172,14 +201,11 @@ class Cart extends State<Cart_screen> {
                                     MaterialPageRoute(
                                         builder: (context) => Login_Screen()));
                               } else {
-                                user = json.decode(user);
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Checkout(
-                                            items: model.cartList,
-                                            totalPrice: totalPrice,
-                                            user: user)));
+                                  user = json.decode(user);
+                                var profileRef =
+                                    getUserProfile(user['user_id']);
+                                profileRef.then((value) =>
+                                    {setProfileData(value, user, model)});
                               }
                             },
                             shape: new OutlineInputBorder(

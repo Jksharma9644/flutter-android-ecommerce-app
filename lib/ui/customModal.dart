@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sawjigrocerryapp/ui/HomeScreen.dart';
+import './otpVerification.dart';
+import './UserScreen.dart';
 
 class Consts {
   Consts._();
@@ -9,16 +11,46 @@ class Consts {
 }
 
 class CustomDialog extends StatelessWidget {
-  final String title, description, buttonText;
+  final String title, description, buttonText,pageRedirection;
+  var data;
   final Image image;
 
   CustomDialog({
     @required this.title,
     @required this.description,
     @required this.buttonText,
+    @required this.data,
+    this.pageRedirection,
     this.image,
   });
   dialogContent(BuildContext context) {
+    Actionpage(action) {
+      print(data);
+      switch (action) {
+        case 'Login':
+          {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          }
+          break;
+
+        case 'OTP':
+          {
+            //statements;
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => OTPVerification(mobile:data['mobile'] ,id:data['_id'])));
+          }
+          break;
+
+        default:
+          {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          }
+          break;
+      }
+    }
+
     return Stack(
       children: <Widget>[
         Container(
@@ -64,8 +96,7 @@ class CustomDialog extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: FlatButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()));
+                    Actionpage(pageRedirection);
 
                     // To close the dialog
                   },

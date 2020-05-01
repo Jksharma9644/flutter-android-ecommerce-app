@@ -1,13 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:sawjigrocerryapp/ui/SignUpScreen.dart';
 import 'package:sawjigrocerryapp/ui/HomeScreen.dart';
 import 'package:sawjigrocerryapp/services/auth.service.dart';
-import 'package:sawjigrocerryapp/services/sharedPreference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
-class Login_Screen extends StatefulWidget {
+import 'package:sms_autofill/sms_autofill.dart';
+class OTPVerification extends StatefulWidget {
 
 
   final Key fieldKey;
@@ -17,8 +15,10 @@ class Login_Screen extends StatefulWidget {
   final FormFieldSetter<String> onSaved;
   final FormFieldValidator<String> validator;
   final ValueChanged<String> onFieldSubmitted;
+  final num mobile;
+  final String id;
 
-  const Login_Screen({Key key, this.fieldKey, this.hintText, this.labelText, this.helperText, this.onSaved, this.validator, this.onFieldSubmitted}) : super(key: key);
+  const OTPVerification({Key key,this.mobile , this .id ,this.fieldKey, this.hintText, this.labelText, this.helperText, this.onSaved, this.validator, this.onFieldSubmitted}) : super(key: key);
 
   ThemeData buildTheme() {
     final ThemeData base = ThemeData();
@@ -33,21 +33,25 @@ class Login_Screen extends StatefulWidget {
     );
   }
   @override
-  State<StatefulWidget> createState() => login();
+  State<StatefulWidget> createState() => otpState(mobile ,id);
 }
 
-class login extends State<Login_Screen> {
+class otpState extends State<OTPVerification> {
 
   ShapeBorder shape;
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
   String _email;
+  String _otp;
   String _password;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _autovalidate = false;
   bool _formWasEdited = false;
+  final num mobileNo;
+  final String userId;
+  otpState(this.mobileNo ,this .userId);
 
   String _validateName(String value) {
     _formWasEdited = true;
@@ -66,7 +70,7 @@ class login extends State<Login_Screen> {
     return new Scaffold(
         key: scaffoldKey,
         appBar: new AppBar(
-          title: Text('Login'),
+          title: Text('Verification code'),
           backgroundColor: Colors.white,
         ),
         body: SafeArea(
@@ -74,47 +78,7 @@ class login extends State<Login_Screen> {
             child: new Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                new Container(
-                  height: 50.0,
-                  alignment: Alignment.topLeft,
-                  margin: EdgeInsets.only(top: 7.0),
-                  child: new Row(
-                    children: <Widget>[
-                      _verticalD(),
-                      new GestureDetector(
-                        onTap: () {
-                          /* Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => login_screen()));*/
-                        },
-                        child: new Text(
-                          'Login',
-                          style: TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      _verticalD(),
-                      new GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Signup_Screen()));
-                        },
-                        child: new Text(
-                          'Signup',
-                          style: TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.black26,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+               
                 new SafeArea(
 
                     top: false,
@@ -130,25 +94,7 @@ class login extends State<Login_Screen> {
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: <Widget>[
                                     const SizedBox(height: 24.0),
-                                    TextFormField(
-                                      decoration: const InputDecoration(
-                                          border: UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black87,style: BorderStyle.solid),
-                                          ),
-                                          focusedBorder:  UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black87,style: BorderStyle.solid),
-                                          ),
-                                          icon: Icon(Icons.email,color: Colors.black38,),
-                                          hintText: 'Your email address',
-                                          labelText: 'E-mail',
-                                          labelStyle: TextStyle(color: Colors.black54)
-                                      ),
-                                      keyboardType: TextInputType.emailAddress,
-                                      validator: (val) =>
-                                      !val.contains('@') ? 'Not a valid email.' : null,
-                                      onSaved: (val) => _email = val,
-                                    ),
-
+                                   
                                     const SizedBox(height: 24.0),
                                     TextFormField(
                                       obscureText: true,
@@ -160,14 +106,14 @@ class login extends State<Login_Screen> {
                                             borderSide: BorderSide(color: Colors.black87,style: BorderStyle.solid),
                                           ),
                                           icon: Icon(Icons.lock,color: Colors.black38,),
-                                          hintText: 'Your password',
-                                          labelText: 'Password',
+                                          hintText: '',
+                                          labelText: 'Enter Your 6 digit OTP',
                                           labelStyle: TextStyle(color: Colors.black54)
                                       ),
 
                                       validator: (val) =>
-                                      val.length < 6 ? 'Password too short.' : null,
-                                      onSaved: (val) => _password = val,
+                                      val.length > 6 ? 'Invalid OTP' : null,
+                                      onSaved: (val) => _otp = val,
                                     ),
 
                                     SizedBox(height: 35.0,),
@@ -182,9 +128,13 @@ class login extends State<Login_Screen> {
                                             margin: EdgeInsets.only(left: 10.0),
                                             child: new GestureDetector(
                                               onTap: (){
-
+                                                var request={
+                                                 	"mobile":mobileNo.toString(),
+	                                                "_id":userId
+                                                };
+                                                  sendOTP(request);
                                               },
-                                              child: Text('FORGOT PASSWORD?',style: TextStyle(
+                                              child: Text('Send OTP',style: TextStyle(
                                                   color: Colors.blueAccent,fontSize: 13.0
                                               ),),
                                             ),
@@ -195,7 +145,7 @@ class login extends State<Login_Screen> {
                                               onTap: (){
                                                 _submit();
                                               },
-                                              child: Text('LOGIN',style: TextStyle(
+                                              child: Text('Verify ',style: TextStyle(
                                                   color: Colors.orange,fontSize: 20.0,fontWeight: FontWeight.bold
                                               ),),
                                             ),
@@ -238,14 +188,11 @@ class login extends State<Login_Screen> {
                             )
 
                         )        //login,
-                    )),
-                  
+                    ))
               ],
             ),
           )
-        ),
-      
-        );
+        ));
   }
 
   void _submit() {
@@ -257,7 +204,7 @@ class login extends State<Login_Screen> {
 
       // Email & password matched our validation rules
       // and are saved to _email and _password fields.
-      _performLogin();
+      _mobileNoVerify();
     }
     else{
       showInSnackBar('Please fix the errors in red before submitting.');
@@ -270,21 +217,21 @@ class login extends State<Login_Screen> {
         content: Text(value)
     ));
   }
-  void _performLogin() {
+  void _mobileNoVerify() {
     var request= {
-       'email': _email,
-       'password' :_password
+       'otp': _otp
     };
-    var responseRef =  signIn(request);
-    responseRef.then((value) => {checkLoginDetails(value)});
+    var responseRef =  verifyOTP(request);
+    responseRef.then((value) => {checkDetails(value)});
     // This is just a demo, so no actual login here.
     
   }
-  void checkLoginDetails(res) async {
+  void checkDetails(res) async {
+    print(res);
     if(res['status']==true){
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("userdetails", json.encode(res['data']));
-       Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
+      // final SharedPreferences prefs = await SharedPreferences.getInstance();
+      // prefs.setString("userdetails", json.encode(res['data']));
+      //  Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
     }else{
       showInSnackBar(res['message']);
     }

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:sawjigrocerryapp/ui/UserScreen.dart';
 import 'package:sawjigrocerryapp/services/sharedPreference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sawjigrocerryapp/ui/UserScreen.dart';
 import 'package:sawjigrocerryapp/ui/orderHistoryScreen.dart';
+import './otpVerification.dart';
+import './accountScreen.dart';
 
 class DrawerScreen extends StatefulWidget {
   @override
@@ -55,10 +56,10 @@ class DrawerState extends State<DrawerScreen> {
               accountName: new Text(user['name']),
               accountEmail: new Text(user['email']),
               onDetailsPressed: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => Account_Screen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Account_Screen(profileData:user)));
               },
               decoration: new BoxDecoration(
                 backgroundBlendMode: BlendMode.difference,
@@ -90,26 +91,6 @@ class DrawerState extends State<DrawerScreen> {
                     title: new Text("Order History "),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> Oder_History(toolbarname:' Order History', clientId: user['user_id'])));
-                    }),
-              ],
-            ),
-          ),
-          new Card(
-            elevation: 4.0,
-            child: new Column(
-              children: <Widget>[
-                new ListTile(
-                    leading: Icon(Icons.settings),
-                    title: new Text("Setting"),
-                    onTap: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context)=> Setting_Screen(toolbarname: 'Setting',)));
-                    }),
-                new Divider(),
-                new ListTile(
-                    leading: Icon(Icons.help),
-                    title: new Text("Help"),
-                    onTap: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context)=> Help_Screen(toolbarname: 'Help',)));
                     }),
               ],
             ),
