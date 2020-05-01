@@ -1,245 +1,241 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sawjigrocerryapp/ui/HomeScreen.dart';
 import 'package:sawjigrocerryapp/services/auth.service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:sawjigrocerryapp/ui/customModal.dart';
 class OTPVerification extends StatefulWidget {
-
-
-  final Key fieldKey;
-  final String hintText;
-  final String labelText;
-  final String helperText;
-  final FormFieldSetter<String> onSaved;
-  final FormFieldValidator<String> validator;
-  final ValueChanged<String> onFieldSubmitted;
+  int fields;
+  final String lastPin;
+  var onSubmit;
+  double fieldWidth;
+  double fontSize;
+  bool isTextObscure;
+  bool showFieldAsBox;
   final num mobile;
   final String id;
 
-  const OTPVerification({Key key,this.mobile , this .id ,this.fieldKey, this.hintText, this.labelText, this.helperText, this.onSaved, this.validator, this.onFieldSubmitted}) : super(key: key);
+  OTPVerification(
+      {this.mobile,
+      this.id,
+      this.lastPin,
+      this.fields: 5,
+      this.onSubmit,
+      this.fieldWidth: 40.0,
+      this.fontSize: 20.0,
+      this.isTextObscure: false,
+      this.showFieldAsBox: false})
+      : assert(fields > 0);
 
-  ThemeData buildTheme() {
-    final ThemeData base = ThemeData();
-    return base.copyWith(
-      hintColor: Colors.red,
-      inputDecorationTheme: InputDecorationTheme(
-        labelStyle: TextStyle(
-            color: Colors.yellow,
-            fontSize: 24.0
-        ),
-      ),
-    );
-  }
   @override
-  State<StatefulWidget> createState() => otpState(mobile ,id);
+  State createState() {
+    return PinEntryTextFieldState(mobile,id);
+  }
 }
 
-class otpState extends State<OTPVerification> {
+class PinEntryTextFieldState extends State<OTPVerification> {
+  List<String> _pin;
+  List<FocusNode> _focusNodes;
+  List<TextEditingController> _textControllers;
+  final num mobile;
+  final String id;
+  PinEntryTextFieldState(this.mobile ,this .id);
+  Widget textfields = Container();
+  bool sentOtp = false;
 
-  ShapeBorder shape;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  final formKey = GlobalKey<FormState>();
+  @override
+  void initState() {
+    super.initState();
+    var request = {"mobile": mobile , "_id": id};
+    var otpRef =sendOTP(request);
+    otpRef.then((data)=>{checkOtpIsSend(data)});
 
-  String _email;
-  String _otp;
-  String _password;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    _pin = List<String>(widget.fields);
+    _focusNodes = List<FocusNode>(widget.fields);
+    _textControllers = List<TextEditingController>(widget.fields);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        if (widget.lastPin != null) {
+          for (var i = 0; i < widget.lastPin.length; i++) {
+            _pin[i] = widget.lastPin[i];
+          }
+        }
+        textfields = generateTextFields(context);
+      });
+    });
+  }
+  
+  checkOtpIsSend(res){
+    if(res["status"]){
+      setState(() {
+         sentOtp = true;
+      });
+     
+    }
 
-  bool _autovalidate = false;
-  bool _formWasEdited = false;
-  final num mobileNo;
-  final String userId;
-  otpState(this.mobileNo ,this .userId);
+  }
+  checkDetails(res){
+    if(res["status"]){
+       setState(() {
+         sentOtp = false;
+      });
+      Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+       showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: "Success",
+        description:res['message'],
+        buttonText: "Go to Cart",
+        pageRedirection:"Cart"
+      ),
+    );
+     
+    }
+  }
 
-  String _validateName(String value) {
-    _formWasEdited = true;
-    if (value.isEmpty)
-      return 'Name is required.';
-    final RegExp nameExp = RegExp(r'^[A-Za-z ]+$');
-    if (!nameExp.hasMatch(value))
-      return 'Please enter only alphabetical characters.';
-    return null;
+  @override
+  void dispose() {
+    _focusNodes.forEach((FocusNode f) => f.dispose());
+    _textControllers.forEach((TextEditingController t) => t.dispose());
+  }
+
+  void clearTextFields() {
+    _textControllers.forEach(
+        (TextEditingController tEditController) => tEditController.clear());
+  }
+
+  Widget buildTextField(int i, BuildContext context, [bool autofocus = false]) {
+    if (_focusNodes[i] == null) {
+      _focusNodes[i] = FocusNode();
+    }
+    if (_textControllers[i] == null) {
+      _textControllers[i] = TextEditingController();
+      if (widget.lastPin != null) {
+        _textControllers[i].text = widget.lastPin[i];
+      }
+    }
+
+    _focusNodes[i].addListener(() {
+      if (_focusNodes[i].hasFocus) {}
+    });
+
+    final String lastDigit = _textControllers[i].text;
+    return new Container(
+        width: widget.fieldWidth,
+        margin: EdgeInsets.only(right: 10.0),
+        child: TextField(
+          controller: _textControllers[i],
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          maxLength: 1,
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontSize: widget.fontSize),
+          focusNode: _focusNodes[i],
+          obscureText: widget.isTextObscure,
+          decoration: InputDecoration(
+              counterText: "",
+              border: widget.showFieldAsBox
+                  ? OutlineInputBorder(borderSide: BorderSide(width: 2.0))
+                  : null),
+          onChanged: (String str) {
+            _pin[i] = str;
+            if (i + 1 != widget.fields) {
+              FocusScope.of(context).requestFocus(_focusNodes[i + 1]);
+            } else {
+              clearTextFields();
+              FocusScope.of(context).requestFocus(_focusNodes[0]);
+              widget.onSubmit(_pin.join());
+            }
+          },
+          onSubmitted: (String str) {
+            clearTextFields();
+         
+            widget.onSubmit(_pin.join());
+          },
+        ));
+  }
+
+  Widget generateTextFields(BuildContext context) {
+    List<Widget> textFields = List.generate(widget.fields, (int i) {
+      return buildTextField(i, context);
+    });
+    FocusScope.of(context).requestFocus(_focusNodes[0]);
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        verticalDirection: VerticalDirection.down,
+        children: textFields);
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    bool _obscureText = true;
-    return new Scaffold(
-        key: scaffoldKey,
-        appBar: new AppBar(
-          title: Text('Verification code'),
-          backgroundColor: Colors.white,
-        ),
-        body: SafeArea(
-          child: new SingleChildScrollView(
-            child: new Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-               
-                new SafeArea(
-
-                    top: false,
-                    bottom: false,
-                    child: Card(
-                        elevation: 5.0,
-                        child: Form(
-                            key: formKey,
-                            autovalidate: _autovalidate,
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: <Widget>[
-                                    const SizedBox(height: 24.0),
-                                   
-                                    const SizedBox(height: 24.0),
-                                    TextFormField(
-                                      obscureText: true,
-                                      decoration: const InputDecoration(
-                                          border: UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black87,style: BorderStyle.solid),
-                                          ),
-                                          focusedBorder:  UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black87,style: BorderStyle.solid),
-                                          ),
-                                          icon: Icon(Icons.lock,color: Colors.black38,),
-                                          hintText: '',
-                                          labelText: 'Enter Your 6 digit OTP',
-                                          labelStyle: TextStyle(color: Colors.black54)
-                                      ),
-
-                                      validator: (val) =>
-                                      val.length > 6 ? 'Invalid OTP' : null,
-                                      onSaved: (val) => _otp = val,
-                                    ),
-
-                                    SizedBox(height: 35.0,),
-                                    new Container(
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-
-                                          new Container(
-                                            alignment: Alignment.bottomLeft,
-                                            margin: EdgeInsets.only(left: 10.0),
-                                            child: new GestureDetector(
-                                              onTap: (){
-                                                var request={
-                                                 	"mobile":mobileNo.toString(),
-	                                                "_id":userId
-                                                };
-                                                  sendOTP(request);
-                                              },
-                                              child: Text('Send OTP',style: TextStyle(
-                                                  color: Colors.blueAccent,fontSize: 13.0
-                                              ),),
-                                            ),
-                                          ),
-                                          new Container(
-                                            alignment: Alignment.bottomRight,
-                                            child: new GestureDetector(
-                                              onTap: (){
-                                                _submit();
-                                              },
-                                              child: Text('Verify ',style: TextStyle(
-                                                  color: Colors.orange,fontSize: 20.0,fontWeight: FontWeight.bold
-                                              ),),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    /*   const SizedBox(height:24.0),
-
-                            new Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: <Widget>[
-
-                                new GestureDetector(
-                                  onTap: (){
-
-                                  },
-                                  child: Text('FORGOT PASSWORD?',style: TextStyle(
-                                    color: Colors.blueAccent,fontSize: 13.0
-                                  ),),
-                                ),
-
-                                new GestureDetector(
-                                  onTap: (){
-
-                                  },
-                                  child: Text('LOGIN',style: TextStyle(
-                                      color: Colors.orange,fontSize: 15.0
-                                  ),),
-                                ),
-
-                              ],
-                            )
-
-
-*/
-                                  ]
-                              ),
-                            )
-
-                        )        //login,
-                    ))
-              ],
-            ),
+    return Scaffold(
+        appBar: AppBar(title: Text("Verifiction code")),
+        body:sentOtp==false 
+        ? new Container(
+          child :new Center(
+            child: new Text("Please Wait while we sending ") ,
           )
+        )
+        :new Column(
+          children: <Widget>[
+            new Container(
+              padding: EdgeInsets.only(left: 65, top: 30),
+              width: 400,
+              child: new Center(
+                  child: new Text(
+                "Please enter the OTP sent on your registereed mobile number",
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
+              )),
+            ),
+            new Container(
+                padding: EdgeInsets.all(20),
+                child: generateTextFields(context)),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(15),
+                  child: FlatButton(
+                      color: Colors.black,
+                      child: const Text(
+                        'Resend',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      textColor: Colors.white,
+                      onPressed: () {},
+                      shape: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      )),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(15),
+                  child: FlatButton(
+                      color: Colors.black,
+                      child: const Text(
+                        'Verify',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      textColor: Colors.white,
+                      onPressed: () {
+                        //   void _mobileNoVerify() {
+                          var request = {'otp': _pin.join()};
+                          var responseRef = verifyOTP(request);
+                          responseRef.then((value) => {checkDetails(value)});
+                          // This is just a demo, so no actual login here.
+                        
+                      },
+                      shape: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      )),
+                ),
+              ],
+            )
+          ],
         ));
   }
-
-  void _submit() {
-    final form = formKey.currentState;
-    print(form);
-
-    if (form.validate()) {
-      form.save();
-
-      // Email & password matched our validation rules
-      // and are saved to _email and _password fields.
-      _mobileNoVerify();
-    }
-    else{
-      showInSnackBar('Please fix the errors in red before submitting.');
-
-    }
-  }
-
-  void showInSnackBar(String value) {
-    scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(value)
-    ));
-  }
-  void _mobileNoVerify() {
-    var request= {
-       'otp': _otp
-    };
-    var responseRef =  verifyOTP(request);
-    responseRef.then((value) => {checkDetails(value)});
-    // This is just a demo, so no actual login here.
-    
-  }
-  void checkDetails(res) async {
-    print(res);
-    if(res['status']==true){
-      // final SharedPreferences prefs = await SharedPreferences.getInstance();
-      // prefs.setString("userdetails", json.encode(res['data']));
-      //  Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
-    }else{
-      showInSnackBar(res['message']);
-    }
-
-  }
-
-  _verticalD() => Container(
-        margin: EdgeInsets.only(left: 10.0, right: 0.0, top: 0.0, bottom: 0.0),
-      );
-
-  }
+}

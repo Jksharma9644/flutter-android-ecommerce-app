@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sawjigrocerryapp/ui/HomeScreen.dart';
 import './otpVerification.dart';
+import './CartScreen.dart';
 import './UserScreen.dart';
 
 class Consts {
@@ -25,6 +26,7 @@ class CustomDialog extends StatelessWidget {
   });
   dialogContent(BuildContext context) {
     Actionpage(action) {
+       Navigator.of(context).pop();
       print(data);
       switch (action) {
         case 'Login':
@@ -41,11 +43,20 @@ class CustomDialog extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => OTPVerification(mobile:data['mobile'] ,id:data['_id'])));
           }
           break;
+         case 'Cart':
+          {
+            //statements;
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => Cart_screen()));
+                
+          }
+          break;
 
         default:
           {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => HomeScreen()));
+               
           }
           break;
       }
@@ -93,7 +104,7 @@ class CustomDialog extends StatelessWidget {
               ),
               SizedBox(height: 24.0),
               Align(
-                alignment: Alignment.bottomRight,
+                alignment: Alignment.center,
                 child: FlatButton(
                   onPressed: () {
                     Actionpage(pageRedirection);
