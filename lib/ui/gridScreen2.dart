@@ -23,91 +23,70 @@ class Grid extends State<GridViewScreen2> {
     return GridView.builder(
         itemCount: products.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: (orientation == Orientation.portrait) ? 1 : 2),
+            crossAxisCount: (orientation == Orientation.portrait) ? 1 : 3),
         itemBuilder: (BuildContext context, int index) {
           return SafeArea(
               top: false,
               bottom: false,
               child: new GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ProductDetailsScreen(
-                              productDetails: products[index])));
-                },
-                child: Card(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Container(
-                          padding: EdgeInsets.all(10),
-                          height: 200.0,
-                          child: Stack(
-                            children: <Widget>[
-                              Positioned.fill(
-                                child: products[index].images.length > 0
-                                ?Image.network(
-                                  products[index].images[0].url,
-                                  // package: destination.assetPackage,
-                                  fit: BoxFit.fitHeight,
-                                )
-                                : Image.asset(
-                                  'images/no-images.png',
-                                  // package: destination.assetPackage,
-                                  fit: BoxFit.scaleDown,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      const ListTile(
-                        title: Text('The Enchanted Nightingale'),
-                        subtitle: Text(
-                            'Music by Julie Gable. Lyrics by Sidney Stein.'),
-                      ),
-
-                     new  Container(
-                                        alignment: Alignment.center,
-                                        child: OutlineButton(
-                                            borderSide: BorderSide(
-                                                color: Colors.amber.shade500),
-                                            child: const Text('Add to cart'),
-                                            textColor: Colors.amber.shade500,
-                                            onPressed: () {
-                                                 model.incrementCount();
-                                                 model.addCartItems(products[index]);
-                                            },
-                                            shape: new OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                            )),
-                                      ),
-                      // new Container(
-                      //     child: new Center(
-                      //         child: new SizedBox(
-                      //   height: 25.0,
-                      //   child: FlatButton(
-                      //     color: Colors.redAccent,
-                      //     child: const Text(
-                      //       'Add to Cart',
-                      //       style: TextStyle(fontSize: 12.0),
-                      //     ),
-                      //     shape: new RoundedRectangleBorder(
-                      //         borderRadius: new BorderRadius.circular(30.0)),
-                      //     textColor: Colors.white,
-                      //     onPressed: () {
-                      //       // launch(data[index]["link"],
-                      //       //     forceWebView: false);
-                      //       model.incrementCount();
-                      //       model.addCartItems(products[index]);
-                      //     },
-                      //   ),
-                      // )))
-                    ],
-                  ),
+                  child: new Container(
+                  height: 600,
+                padding: new EdgeInsets.all(8.0),
+                child: new Column(
+                  children: <Widget>[
+                    backgroundImage(products[index]),
+                    onTopContent(products[index])
+                  ],
                 ),
-              ));
+              )));
         });
+  }
+
+  backgroundImage(item) {
+    return Container(
+      height: 200,
+      decoration: new BoxDecoration(
+        image: new DecorationImage(
+          image: item.images.length > 0
+              ? new NetworkImage(
+                  item.images[0].url,
+                )
+              : new NetworkImage(
+                  'images/no-images.png',
+                  // package: destination.assetPackage,
+                  
+                ),
+          fit: BoxFit.scaleDown,
+        ),
+      ),
+    );
+  }
+
+  onTopContent(item) {
+    return Container(
+      height: 200.0,
+      child: new Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Text(
+           item.name
+          ),
+          new Text(
+          item.qty.toString()
+          ),
+          new Container(
+            height: 2.0,
+            width: 150.0,
+            color: Colors.redAccent,
+          ),
+          new Text(
+               item.qty.toString()
+          ),
+          //new Container()
+        ],
+      ),
+    );
   }
 }
