@@ -5,6 +5,7 @@ import 'package:sawjigrocerryapp/model/product-model.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:sawjigrocerryapp/scopedmodel/main.dart';
 import 'package:sawjigrocerryapp/ui/CartScreen.dart';
+import 'package:carousel_pro/carousel_pro.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Products productDetails;
@@ -97,10 +98,9 @@ class ItemDetailClass extends State<ProductDetailsScreen> {
                   child: new GestureDetector(
                     onTap: () {
                       Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          Cart_screen()));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Cart_screen()));
                     },
                     child: Stack(
                       children: <Widget>[
@@ -110,7 +110,7 @@ class ItemDetailClass extends State<ProductDetailsScreen> {
                               color: Colors.black,
                             ),
                             onPressed: () {}),
-                         model.cartItemsCount == 0
+                        model.cartItemsCount == 0
                             ? new Container()
                             : new Positioned(
                                 child: new Stack(
@@ -123,7 +123,7 @@ class ItemDetailClass extends State<ProductDetailsScreen> {
                                       right: 5.5,
                                       child: new Center(
                                         child: new Text(
-                                           model.cartItemsCount.toString(),
+                                          model.cartItemsCount.toString(),
                                           style: new TextStyle(
                                               color: Colors.white,
                                               fontSize: 11.0,
@@ -157,22 +157,45 @@ class ItemDetailClass extends State<ProductDetailsScreen> {
                               alignment: Alignment.center,
                               children: <Widget>[
                                 new Container(
-                                  child: new Carousel(
-                                    images: [
-                                      new Image.network(
-                                        productDetails.images.length > 0
-                                            ? widget
-                                                .productDetails.images[0].url
-                                            : 'images/no-images.png',
+                                    child: productDetails.images.length > 0
+                                        ? new Carousel(
+                                            images: productDetails.images
+                                                .map((image) {
+                                              return Image(
+                                                  image:
+                                                      NetworkImage(image.url));
+                                            }).toList(),
+                                            // [
+                                            //   new Image.network(
+                                            //     productDetails.images.length > 0
+                                            //         ? widget
+                                            //             .productDetails.images[0].url
+                                            //         : 'images/no-images.png',
 
-                                        // package: destination.assetPackage,
-                                      ),
-                                    ],
-                                    boxFit: BoxFit.scaleDown,
-                                    showIndicator: false,
-                                    autoplay: false,
-                                  ),
-                                )
+                                            //     // package: destination.assetPackage,
+                                            //   ),
+                                            // ],
+                                            dotSize: 10.0,
+                                            dotSpacing: 15.0,
+                                            dotColor: Colors.redAccent,
+                                            indicatorBgPadding: 5.0,
+                                            dotBgColor:
+                                                Colors.grey[300].withOpacity(1),
+                                            borderRadius: true,
+                                              autoplay: true,
+                                          )
+                                        : new Carousel(
+                                            images: [
+                                              new Image.network(
+                                                productDetails.images.length > 0
+                                                    ? widget.productDetails
+                                                        .images[0].url
+                                                    : 'images/no-images.png',
+
+                                                // package: destination.assetPackage,
+                                              ),
+                                            ],
+                                          ))
                               ],
                             ),
                           ),
@@ -236,7 +259,10 @@ class ItemDetailClass extends State<ProductDetailsScreen> {
                                         Container(
                                           margin: EdgeInsets.only(left: 2.0),
                                         ),
-                                        Text("QTY:" + widget.productDetails.qty.toString(),
+                                        Text(
+                                          "QTY:" +
+                                              widget.productDetails.qty
+                                                  .toString(),
                                           style: descriptionStyle.copyWith(
                                               fontSize: 20.0,
                                               color: Colors.black87),
@@ -268,8 +294,9 @@ class ItemDetailClass extends State<ProductDetailsScreen> {
                                             child: const Text('Add to cart'),
                                             textColor: Colors.amber.shade500,
                                             onPressed: () {
-                                                 model.incrementCount();
-                                                 model.addCartItems(widget.productDetails);
+                                              model.incrementCount();
+                                              model.addCartItems(
+                                                  widget.productDetails);
                                             },
                                             shape: new OutlineInputBorder(
                                               borderRadius:
