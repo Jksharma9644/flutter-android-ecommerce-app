@@ -47,7 +47,7 @@ signIn(request) async {
 updateProfile(request ,id) async{
   var url = getbaseUrl();
   final http.Response response = await http.put(
-    url + '/auth/editProfile/'+id,
+    url + 'auth/editProfile/'+id,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

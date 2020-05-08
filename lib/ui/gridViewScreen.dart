@@ -38,9 +38,11 @@ class Grid extends State<GridViewScreen> {
                               productDetails: products[index])));
                 },
                 child: Container(
+                  margin: EdgeInsets.all(5),
                     child: new Column(
                   children: <Widget>[
                     new Card(
+                        
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
@@ -86,6 +88,11 @@ class Grid extends State<GridViewScreen> {
                                   alignment: Alignment.bottomRight,
                                   child: new Row(
                                     children: <Widget>[
+                                       Padding(
+                                        padding: EdgeInsets.all(5),
+                                        child: Text('Qty :' + products[index].qty.toString(),
+                                            style: TextStyle(fontSize: 15.0)),
+                                      ),
                                       Padding(
                                         padding: EdgeInsets.all(5),
                                         child: Text('₹' + products[index].mrp,

@@ -55,18 +55,22 @@ class Cart extends State<Cart_screen> {
         contentPadding: EdgeInsets.all(20.0),
         leading: Image.network(
           model.cartList[index].images[0].url,
-          height: 200.0,
+          height: 250.0,
           width: 80.0,
           fit: BoxFit.contain,
         ),
+        
         title: Text(
           model.cartList[index].name,
           textAlign: TextAlign.left,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         subtitle: new Container(
-            // padding: EdgeInsets.all(2.0),
-            child: new Row(children: <Widget>[
+          child: new Column(children: <Widget>[
+          new Container(
+            padding: EdgeInsets.all(10),
+             child: new Row(
+             children: <Widget>[
           new Text(
             'MRP : ₹${model.cartList[index].netPrice}',
             textAlign: TextAlign.left,
@@ -75,8 +79,14 @@ class Cart extends State<Cart_screen> {
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold),
           ),
-          // Padding(padding: EdgeInsets.all(2.0)),
-          new IconButton(
+
+             ])
+
+          ),
+         new Container(
+           child: new Row(
+             children: <Widget>[
+  new IconButton(
             icon: Icon(_add_icon(), color: Colors.amber.shade500),
             onPressed: () {
               model.updateQuantity(index, 'add');
@@ -84,7 +94,7 @@ class Cart extends State<Cart_screen> {
           ),
           Text(
             model.cartList[index].qty.toString(),
-            style: TextStyle(fontSize: 20.0, color: Colors.black87),
+            style: TextStyle(fontSize: 15.0, color: Colors.black87),
           ),
           new IconButton(
             icon: Icon(_sub_icon(), color: Colors.amber.shade500),
@@ -92,7 +102,18 @@ class Cart extends State<Cart_screen> {
               // decreaseItem(index, model);
               model.updateQuantity(index, 'sub');
             },
-          ),
+          )
+
+
+              ]
+
+           )
+
+
+         )
+         
+          // Padding(padding: EdgeInsets.all(2.0)),
+       ,
         ])),
         trailing: new Container(
           child: Text(

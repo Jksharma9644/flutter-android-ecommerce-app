@@ -34,6 +34,11 @@ class check_out extends State<Checkout> {
   double totalPrice;
   var userDetails;
   var user;
+  var profileData;
+  var address;
+
+  String _addName;
+  String _addLocation;
   check_out(this.items, this.totalPrice, this.userDetails);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool checkboxValueA = true;
@@ -73,7 +78,18 @@ class check_out extends State<Checkout> {
       } else {
         user = json.decode(user);
       }
+        var profileRef = getUserProfile( user["user_id"]);
+       profileRef.then((value) => {setProfileData(value)});
     });
+  }
+  setProfileData(res){
+    if(res['status']){
+      setState(() {
+         profileData =res ['data'];
+         address = profileData['address'];
+      });
+     
+    }
   }
 
   void checkOrderPlaced(res, clientInfo , model) {
@@ -101,18 +117,25 @@ class check_out extends State<Checkout> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Padding(
+                    Padding(
                     padding: EdgeInsets.all(8.0),
                     child: TextFormField(
                       decoration:
-                          InputDecoration(labelText: 'Enter your location'),
+                          InputDecoration(labelText: 'Name'),
+                            keyboardType: TextInputType.text,
+                      validator: (val) =>
+                      val.length < 1 ? 'Please Provide Name' : null,
+                      onSaved: (val) => _addName = val,
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: TextFormField(
-                      decoration:
-                          InputDecoration(labelText: 'Enter your full address'),
+                      decoration:InputDecoration(labelText: 'Your full address'),
+                       keyboardType: TextInputType.text,
+                      validator: (val) =>
+                      val.length < 1 ? 'Addresss can not be blank' : null,
+                      onSaved: (val) => _addLocation = val,
                     ),
                   ),
                   Padding(
@@ -124,10 +147,10 @@ class check_out extends State<Checkout> {
                           _formKey.currentState.save();
                           var req = {
                             "address": [
-                              {"location": "test", "address": "sdsvsdv"}
+                              {"name" :_addName ,"location": _addLocation}
                             ]
                           };
-                          updateProfile(req, user.user_id);
+                          updateProfile(req, user["user_id"]);
                         }
                       },
                     ),
@@ -261,327 +284,136 @@ class check_out extends State<Checkout> {
                           ],
                         )))),
             _verticalDivider(),
-            // new Container(
-            //   alignment: Alignment.topLeft,
-            //   margin: EdgeInsets.only(
-            //       left: 12.0, top: 5.0, right: 0.0, bottom: 5.0),
-            //   child: new Text(
-            //     'Delivery Address',
-            //     style: TextStyle(
-            //         color: Colors.black87,
-            //         fontWeight: FontWeight.bold,
-            //         fontSize: 18.0),
-            //   ),
-            // ),
-            // new Container(
-            //     height: 165.0,
-            //     child: ListView(
-            //       scrollDirection: Axis.horizontal,
-            //       children: <Widget>[
-            //         Container(
-            //           height: 165.0,
-            //           width: 56.0,
-            //           child: Card(
-            //             elevation: 3.0,
-            //             child: Row(
-            //               crossAxisAlignment: CrossAxisAlignment.center,
-            //               children: <Widget>[
-            //                 new Container(
-            //                     alignment: Alignment.center,
-            //                     child: IconButton(
-            //                       icon: Icon(Icons.add),
-            //                       onPressed: () async {
-            //                         addAddress();
-            //                       },
-            //                     )),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //         Container(
-            //           height: 165.0,
-            //           width: 200.0,
-            //           margin: EdgeInsets.all(7.0),
-            //           child: Card(
-            //             elevation: 3.0,
-            //             child: Row(
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: <Widget>[
-            //                 new Column(
-            //                   children: <Widget>[
-            //                     new Container(
-            //                       margin: EdgeInsets.only(
-            //                           left: 12.0,
-            //                           top: 5.0,
-            //                           right: 0.0,
-            //                           bottom: 5.0),
-            //                       child: Column(
-            //                         crossAxisAlignment:
-            //                             CrossAxisAlignment.start,
-            //                         children: <Widget>[
-            //                           new Text(
-            //                             'Naomi A. Schultz',
-            //                             style: TextStyle(
-            //                               color: Colors.black87,
-            //                               fontSize: 15.0,
-            //                               fontWeight: FontWeight.bold,
-            //                               letterSpacing: 0.5,
-            //                             ),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             '2585 Columbia Boulevard',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             'Salisbury',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             'MD 21801',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           new Container(
-            //                             margin: EdgeInsets.only(
-            //                                 left: 00.0,
-            //                                 top: 05.0,
-            //                                 right: 0.0,
-            //                                 bottom: 5.0),
-            //                             child: Row(
-            //                               crossAxisAlignment:
-            //                                   CrossAxisAlignment.center,
-            //                               mainAxisAlignment:
-            //                                   MainAxisAlignment.start,
-            //                               children: <Widget>[
-            //                                 new Text(
-            //                                   'Delivery Address',
-            //                                   style: TextStyle(
-            //                                     fontSize: 15.0,
-            //                                     color: Colors.black26,
-            //                                   ),
-            //                                 ),
-            //                                 _verticalD(),
-            //                                 new Checkbox(
-            //                                   value: checkboxValueA,
-            //                                   onChanged: (bool value) {
-            //                                     setState(() {
-            //                                       checkboxValueA = value;
-            //                                     });
-            //                                   },
-            //                                 ),
-            //                               ],
-            //                             ),
-            //                           )
-            //                         ],
-            //                       ),
-            //                     ),
-            //                   ],
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //         Container(
-            //           height: 130.0,
-            //           width: 200.0,
-            //           margin: EdgeInsets.all(7.0),
-            //           child: Card(
-            //             elevation: 3.0,
-            //             child: Row(
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: <Widget>[
-            //                 new Column(
-            //                   children: <Widget>[
-            //                     new Container(
-            //                       margin: EdgeInsets.only(
-            //                           left: 12.0,
-            //                           top: 5.0,
-            //                           right: 0.0,
-            //                           bottom: 5.0),
-            //                       child: Column(
-            //                         crossAxisAlignment:
-            //                             CrossAxisAlignment.start,
-            //                         children: <Widget>[
-            //                           new Text(
-            //                             'Lisa J. Cunningham',
-            //                             style: TextStyle(
-            //                               color: Colors.black87,
-            //                               fontSize: 15.0,
-            //                               fontWeight: FontWeight.bold,
-            //                               letterSpacing: 0.5,
-            //                             ),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             '49 Bagwell Avenue',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             'Ocala',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             ' FL 34471',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           new Container(
-            //                             margin: EdgeInsets.only(
-            //                                 left: 00.0,
-            //                                 top: 05.0,
-            //                                 right: 0.0,
-            //                                 bottom: 5.0),
-            //                             child: Row(
-            //                               crossAxisAlignment:
-            //                                   CrossAxisAlignment.center,
-            //                               mainAxisAlignment:
-            //                                   MainAxisAlignment.start,
-            //                               children: <Widget>[
-            //                                 new Text(
-            //                                   'Delivery Address',
-            //                                   style: TextStyle(
-            //                                     fontSize: 15.0,
-            //                                     color: Colors.black12,
-            //                                   ),
-            //                                 ),
-            //                                 _verticalD(),
-            //                                 new Checkbox(
-            //                                   value: checkboxValueB,
-            //                                   onChanged: (bool value) {
-            //                                     setState(() {
-            //                                       checkboxValueB = value;
-            //                                     });
-            //                                   },
-            //                                 ),
-            //                               ],
-            //                             ),
-            //                           )
-            //                         ],
-            //                       ),
-            //                     ),
-            //                   ],
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //         Container(
-            //           height: 130.0,
-            //           width: 200.0,
-            //           margin: EdgeInsets.all(7.0),
-            //           child: Card(
-            //             elevation: 3.0,
-            //             child: Row(
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: <Widget>[
-            //                 new Column(
-            //                   children: <Widget>[
-            //                     new Container(
-            //                       margin: EdgeInsets.only(
-            //                           left: 12.0,
-            //                           top: 5.0,
-            //                           right: 0.0,
-            //                           bottom: 5.0),
-            //                       child: Column(
-            //                         crossAxisAlignment:
-            //                             CrossAxisAlignment.start,
-            //                         children: <Widget>[
-            //                           new Text(
-            //                             'Elizabeth J. Schmidt',
-            //                             style: TextStyle(
-            //                               color: Colors.black87,
-            //                               fontSize: 15.0,
-            //                               fontWeight: FontWeight.bold,
-            //                               letterSpacing: 0.5,
-            //                             ),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             '3674 Oakway Lane',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             'Long Beach',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           _verticalDivider(),
-            //                           new Text(
-            //                             ' CA 90802',
-            //                             style: TextStyle(
-            //                                 color: Colors.black45,
-            //                                 fontSize: 13.0,
-            //                                 letterSpacing: 0.5),
-            //                           ),
-            //                           new Container(
-            //                             margin: EdgeInsets.only(
-            //                                 left: 00.0,
-            //                                 top: 05.0,
-            //                                 right: 0.0,
-            //                                 bottom: 5.0),
-            //                             child: Row(
-            //                               crossAxisAlignment:
-            //                                   CrossAxisAlignment.center,
-            //                               mainAxisAlignment:
-            //                                   MainAxisAlignment.start,
-            //                               children: <Widget>[
-            //                                 new Text(
-            //                                   'Delivery Address',
-            //                                   style: TextStyle(
-            //                                     fontSize: 15.0,
-            //                                     color: Colors.black12,
-            //                                   ),
-            //                                 ),
-            //                                 _verticalD(),
-            //                                 new Checkbox(
-            //                                   value: checkboxValueC,
-            //                                   onChanged: (bool value) {
-            //                                     setState(() {
-            //                                       checkboxValueC = value;
-            //                                     });
-            //                                   },
-            //                                 ),
-            //                               ],
-            //                             ),
-            //                           )
-            //                         ],
-            //                       ),
-            //                     ),
-            //                   ],
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     )),
+            
+           new Container(
+              alignment: Alignment.topLeft,
+              margin: EdgeInsets.only(
+                  left: 12.0, top: 5.0, right: 0.0, bottom: 5.0),
+              child: new Text(
+                'Delivery Address',
+                style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0),
+              ),
+            ),
+            
+            new Container(
+                height: 165.0,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: address.length,
+                   itemBuilder: (BuildContext context, int index){
+                    return Container(
+                      height: 165.0,
+                      width: 200.0,
+                      margin: EdgeInsets.all(7.0),
+                      child: Card(
+                        elevation: 3.0,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Column(
+                              children: <Widget>[
+                                new Container(
+                                  margin: EdgeInsets.only(
+                                      left: 12.0,
+                                      top: 5.0,
+                                      right: 0.0,
+                                      bottom: 5.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      new Text(
+                                       address[index]["name"],
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      _verticalDivider(),
+                                      new Text(
+                                       address[index]["location"],
+                                        style: TextStyle(
+                                            color: Colors.black45,
+                                            fontSize: 13.0,
+                                            letterSpacing: 0.5),
+                                      ),
+                                      _verticalDivider(),
+                                    
+                                      new Container(
+                                        margin: EdgeInsets.only(
+                                            left: 00.0,
+                                            top: 05.0,
+                                            right: 0.0,
+                                            bottom: 5.0),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: <Widget>[
+                                            new Text(
+                                              'Delivery Address',
+                                              style: TextStyle(
+                                                fontSize: 15.0,
+                                                color: Colors.black26,
+                                              ),
+                                            ),
+                                            _verticalD(),
+                                            new Checkbox(
+                                              value: checkboxValueA,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  checkboxValueA = value;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    );
+                   }
+                    
+                    
+                    ),
+                  ),
+
+                  // children: <Widget>[
+                  //   Container(
+                  //     height: 165.0,
+                  //     width: 56.0,
+                  //     child: Card(
+                  //       elevation: 3.0,
+                  //       child: Row(
+                  //         crossAxisAlignment: CrossAxisAlignment.center,
+                  //         children: <Widget>[
+                  //           new Container(
+                  //               alignment: Alignment.center,
+                  //               child: IconButton(
+                  //                 icon: Icon(Icons.add),
+                  //                 onPressed: () async {
+                  //                   addAddress();
+                  //                 },
+                  //               )),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                    
+                  //   ]
+        
             _verticalDivider(),
             new Container(
               alignment: Alignment.topLeft,
