@@ -166,10 +166,12 @@ class oder_history extends State<Oder_History> {
                                                       color: Colors.black54),
                                                 ),
                                                 Container(
+                                                  width: 150,
                                                   margin:
                                                       EdgeInsets.only(top: 3.0),
                                                   child: Text(
                                                     orderList[ind]['ORDER_ID'],
+                                                      
                                                     style: TextStyle(
                                                         fontSize: 15.0,
                                                         color: Colors.black87),
@@ -243,7 +245,8 @@ class oder_history extends State<Oder_History> {
                                           size: 20.0,
                                           color: Colors.amber.shade500,
                                         ),
-                                        Text('',
+
+                                        Text( orderList[ind]["CLIENT_INFO"]["address"].length>0 ?  orderList[ind]["CLIENT_INFO"]["address"][0]["name"] + "  , " + orderList[ind]["CLIENT_INFO"]["address"][0]["location"] : "",
                                             style: TextStyle(
                                                 fontSize: 13.0,
                                                 color: Colors.black54)),
@@ -254,8 +257,21 @@ class oder_history extends State<Oder_History> {
                                       color: Colors.amber.shade500,
                                     ),
                                     Container(
-                                        child: _status(
-                                            orderList[ind]['ORDER_STATUS']))
+                                      child : new Row(
+                                        children: <Widget>[
+                                          Padding(padding: EdgeInsets.all(2),
+                                          child: _status("Order" ,
+                                            orderList[ind]['ORDER_STATUS']),
+                                          ),
+                                           Padding(padding: EdgeInsets.all(2),
+                                          child: _status("Payment",
+                                            orderList[ind]['PAYMENT_STATUS']),
+                                          )
+
+                                        ],
+                                      )
+                                    
+                                      )
                                   ],
                                 ))))),
                   ]));
@@ -266,12 +282,12 @@ class oder_history extends State<Oder_History> {
         padding: EdgeInsets.all(2.0),
       );
 
-  Widget _status(status) {
-    if (status == 'Cancel Order') {
+  Widget _status(type ,status) {
+    if (status == 'cancelled' || status == 'failed' || status == 'rejected') {
       return FlatButton.icon(
           label: Text(
-            status,
-            style: TextStyle(color: Colors.red),
+            type  +" : " + status,
+            style: TextStyle(color: Colors.black),
           ),
           icon: const Icon(
             Icons.highlight_off,
@@ -282,10 +298,25 @@ class oder_history extends State<Oder_History> {
             // Perform some action
           });
     } else {
+      if(status == 'pending' || status == 'process' ){
       return FlatButton.icon(
           label: Text(
-            status,
-            style: TextStyle(color: Colors.green),
+            type  +" : " + status,
+            style: TextStyle(color: Colors.black),
+          ),
+          icon: const Icon(
+            Icons.check_circle,
+            size: 18.0,
+            color: Colors.orange,
+          ),
+          onPressed: () {
+            // Perform some action
+          });
+      }else{
+         return FlatButton.icon(
+          label: Text(
+            type  +" : " + status,
+            style: TextStyle(color: Colors.black),
           ),
           icon: const Icon(
             Icons.check_circle,
@@ -295,6 +326,8 @@ class oder_history extends State<Oder_History> {
           onPressed: () {
             // Perform some action
           });
+      }
+      
     }
     if (status == "3") {
       return Text('Process');

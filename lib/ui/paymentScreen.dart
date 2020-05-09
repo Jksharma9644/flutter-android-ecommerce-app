@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sawjigrocerryapp/ui/customModal.dart';
+import 'package:sawjigrocerryapp/services/product.service.dart';
 
 class Patment extends StatefulWidget {
+double totalPrice;
+String orderId;
+var clinetInfo;
+Patment({Key key, this.totalPrice, this.orderId, this.clinetInfo});
+
+
   @override
-  State<StatefulWidget> createState() => payment();
+  State<StatefulWidget> createState() => payment( this.totalPrice, this.orderId, this.clinetInfo);
 }
 
 class Item {
@@ -16,11 +24,14 @@ class Item {
 }
 
 class payment extends State<Patment> {
-  Razorpay _razorpay;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool checkboxValueA = true;
   bool checkboxValueB = false;
   bool checkboxValueC = false;
+  double totalPrice;
+String orderId;
+  var clinetInfo;
+  payment( this.totalPrice, this.orderId, this.clinetInfo);
 
   IconData _backIcon() {
     switch (Theme.of(context).platform) {
@@ -33,53 +44,11 @@ class payment extends State<Patment> {
     assert(false);
     return null;
   }
-
   int radioValue = 0;
   void handleRadioValueChanged(int value) {
     setState(() {
       radioValue = value;
     });
-  }
-
-  void initState() {
-    super.initState();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    Fluttertoast.showToast(
-        msg: 'Error ' + response.code.toString() + ' ' + response.message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    Fluttertoast.showToast(
-        msg: 'Payment Success ' + response.paymentId,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.green,
-        textColor: Colors.black,
-        fontSize: 16.0);
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    Fluttertoast.showToast(
-        msg: 'Wallet Name ' + response.walletName,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.green,
-        textColor: Colors.black,
-        fontSize: 16.0);
   }
 
   List<Item> itemList = <Item>[
@@ -91,6 +60,23 @@ class payment extends State<Patment> {
     Item(itemName: 'Apple', itemQun: 'Qty:1', itemPrice: '\₹ 50'),
   ];
   String toolbarname = 'CheckOut';
+
+  paymentStatus(){
+     var req= {
+      "PAYMENT_STATUS" :"success",
+      "ORDER_STATUS" :"success"
+    };
+    editOrderById(req,orderId);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        title: "Payment Success",
+        description:
+            "Your order has been placed successfully",
+        buttonText: "Okay",
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +230,9 @@ class payment extends State<Patment> {
                                 style: TextStyle(
                                     fontSize: 15.0, color: Colors.black)),
                             Radio<int>(
-                                value: 0, groupValue: 0, onChanged: null),
+                                value: 0,
+                                groupValue: 0,
+                                onChanged: null),
                           ],
                         ),
                       ),
@@ -281,7 +269,7 @@ class payment extends State<Patment> {
                               Radio<int>(
                                   value: 0,
                                   groupValue: 0,
-                                  onChanged: handleRadioValueChanged),
+                                  onChanged: null),
                             ],
                           )),
                       Divider(),
@@ -297,7 +285,9 @@ class payment extends State<Patment> {
                                   style: TextStyle(
                                       fontSize: 15.0, color: Colors.black)),
                               Radio<int>(
-                                  value: 0, groupValue: 0, onChanged: null),
+                                  value:0 ,
+                                  groupValue: 0,
+                                  onChanged: handleRadioValueChanged),
                             ],
                           )),
                       Divider(),
@@ -305,50 +295,48 @@ class payment extends State<Patment> {
                   )),
                 ),
               )),
+          Container(
+              alignment: Alignment.bottomLeft,
+              height: 50.0,
+              child: Card(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(icon: Icon(Icons.info), onPressed: null),
+                    Text(
+                      'Total :',
+                      style: TextStyle(
+                          fontSize: 17.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '\₹ ' + totalPrice.toString(),
+                      style: TextStyle(fontSize: 17.0, color: Colors.black54),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: OutlineButton(
+                            borderSide: BorderSide(color: Colors.green),
+                            child: const Text('PROCEED TO PAY'),
+                            textColor: Colors.green,
+                            onPressed: () {
+                              //   Navigator.push(context, MaterialPageRoute(builder: (context)=> Item_Details()));
+                              paymentStatus();
+                            },
+                            shape: new OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
         ],
       ),
-      bottomSheet: Container(
-          alignment: Alignment.bottomLeft,
-          height: 50.0,
-          child: Card(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(icon: Icon(Icons.info), onPressed: null),
-                Text(
-                  'Total :',
-                  style: TextStyle(
-                      fontSize: 17.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '\₹ 500',
-                  style: TextStyle(fontSize: 17.0, color: Colors.black54),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: OutlineButton(
-                        borderSide: BorderSide(color: Colors.green),
-                        child: const Text('PROCEED TO PAY'),
-                        textColor: Colors.green,
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Patment()));
-                        },
-                        shape: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        )),
-                  ),
-                ),
-              ],
-            ),
-          )),
     );
   }
 

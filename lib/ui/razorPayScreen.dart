@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sawjigrocerryapp/ui/customModal.dart';
+import 'package:sawjigrocerryapp/services/product.service.dart';
 
 class RazorPayScreen extends StatefulWidget {
   double totalPrice;
@@ -30,6 +31,11 @@ class Payment extends State<RazorPayScreen> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
+    var req= {
+      "PAYMENT_STATUS" :"rejected",
+      "ORDER_STATUS" :"failed"
+    };
+    editOrderById(req,orderId);
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
@@ -42,6 +48,11 @@ class Payment extends State<RazorPayScreen> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
+     var req= {
+      "PAYMENT_STATUS" :"success",
+      "ORDER_STATUS" :"process"
+    };
+    editOrderById(req,orderId);
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
@@ -73,10 +84,10 @@ class Payment extends State<RazorPayScreen> {
       'name': 'sawji',
       "order_id": orderId,
       'description': 'Test payment from Flutter app',
-      'prefill': {
-        'contact': clinetInfo['mobile'],
-        'email': clinetInfo['email']
-      },
+      "prefill":{
+        "email" :clinetInfo["email"],
+        "mobile" :clinetInfo["mobile"]
+      }
     };
     try {
       print(totalPrice);

@@ -9,7 +9,7 @@ import 'package:sawjigrocerryapp/scopedmodel/main.dart';
 import 'package:sawjigrocerryapp/ui/customModal.dart';
 import 'package:sawjigrocerryapp/services/auth.service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:sawjigrocerryapp/ui/paymentScreen.dart';
 class Checkout extends StatefulWidget {
   final List<Products> items;
   double totalPrice;
@@ -40,34 +40,61 @@ class check_out extends State<Checkout> {
   String _addName;
   String _addLocation;
   check_out(this.items, this.totalPrice, this.userDetails);
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   bool checkboxValueA = true;
-  bool checkboxValueB = false;
-  bool checkboxValueC = false;
+
    @override
   void initState() {
     super.initState();
     loadSharedPrefs();
   }
   void placeOrder(MainModel model) async {
+    var selectedCount =0;
+    var selectedAddress = [];
+    var selectedIndex = 0;
     var order_list = convertOrderListToJson(model.cartList);
-    var request = {
-      "ORDER_DETAILS": order_list,
-      "CLIENT_ID": userDetails['user_id'],
-      "ORDER_STATUS": "pending",
-      "CLIENT_INFO": {
-        "email": userDetails['email'],
-        "name": userDetails['name'],
-        "userid": userDetails['user_id'],
-        "address": []
-      },
-      "TOTAL_AMOUNT": model.cartTotal,
-      "PAYMENT_STATUS": "pending",
-      "platform": "android",
-      "PAYMENT_MODE": ""
-    };
+    for( var i =0 ;i<address.length ; i++){
+      if(address[i]["selected"]){
+        selectedIndex = i;
+        selectedCount = selectedCount+1;
+      }
+    }
+    if(selectedCount>1){
+        scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("please select only one delivery address")
+    ));
+    }else{
+        if(selectedCount==1){
+          selectedAddress.add(address[selectedIndex]);
+                var request = {
+            "ORDER_DETAILS": order_list,
+            "CLIENT_ID": userDetails['user_id'],
+            "ORDER_STATUS": "pending",
+            "CLIENT_INFO": {
+              "email": userDetails['email'],
+              "name": userDetails['name'],
+              "userid": userDetails['user_id'],
+              "address": selectedAddress
+            },
+            "TOTAL_AMOUNT": model.cartTotal,
+            "PAYMENT_STATUS": "pending",
+            "platform": "android",
+            "PAYMENT_MODE": ""
+          };
     var responseRef = placeorder(request);
-    responseRef.then((res) => {checkOrderPlaced(res, request['CLIENT_INFO'] , model)});
+    responseRef.then((res) => {checkOrderPlaced(res, profileData , model)});
+        }else{
+         scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("please select any address ")
+    ));
+        }
+    }
+  
+   
+  }
+  getUserProfileData(user){
+   var profileRef = getUserProfile( user["user_id"]);
+       profileRef.then((value) => {setProfileData(value)});
   }
 
   loadSharedPrefs() async {
@@ -77,9 +104,9 @@ class check_out extends State<Checkout> {
       if (user == null) {
       } else {
         user = json.decode(user);
+        getUserProfileData(user);
       }
-        var profileRef = getUserProfile( user["user_id"]);
-       profileRef.then((value) => {setProfileData(value)});
+     
     });
   }
   setProfileData(res){
@@ -92,6 +119,7 @@ class check_out extends State<Checkout> {
     }
   }
 
+
   void checkOrderPlaced(res, clientInfo , model) {
     print(res);
     if (res['status']) {
@@ -99,10 +127,19 @@ class check_out extends State<Checkout> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => RazorPayScreen(
-                  totalPrice:model.cartTotal,
+              builder: (context) => 
+              // RazorPayScreen(
+              //     totalPrice:model.cartTotal,
+              //     orderId: orderId,
+              //     clinetInfo: clientInfo)
+                    Patment(
+                          totalPrice:model.cartTotal,
                   orderId: orderId,
-                  clinetInfo: clientInfo)));
+                  clinetInfo: clientInfo
+                      
+                    )
+                  
+                  ));
     }
   }
 
@@ -145,12 +182,16 @@ class check_out extends State<Checkout> {
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
                           _formKey.currentState.save();
-                          var req = {
-                            "address": [
-                              {"name" :_addName ,"location": _addLocation}
-                            ]
+                          var req={
+                            "address": address
                           };
-                          updateProfile(req, user["user_id"]);
+                        
+                          var AddReq = {"name" :_addName ,"location": _addLocation ,"selected" : false};
+                          req["address"].add(AddReq);
+                           Navigator.of(context).pop();
+                    
+                         var  ref=  updateProfile(req, user["user_id"]);
+                         ref.then((value) => {getUserProfileData(user)});
                         }
                       },
                     ),
@@ -218,7 +259,7 @@ class check_out extends State<Checkout> {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return new Scaffold(
-        key: _scaffoldKey,
+        key: scaffoldKey,
         appBar: appBar,
         body: new Column(
           children: <Widget>[
@@ -284,9 +325,9 @@ class check_out extends State<Checkout> {
                           ],
                         )))),
             _verticalDivider(),
-            
-           new Container(
-              alignment: Alignment.topLeft,
+          new Row(
+          children: <Widget>[
+              new Container(
               margin: EdgeInsets.only(
                   left: 12.0, top: 5.0, right: 0.0, bottom: 5.0),
               child: new Text(
@@ -297,7 +338,36 @@ class check_out extends State<Checkout> {
                     fontSize: 18.0),
               ),
             ),
-            
+                new Container(
+                alignment: Alignment.topRight,
+                width: 50.0,
+                 margin: EdgeInsets.only(
+                  left: 12.0, top: 5.0, right: 0.0, bottom: 5.0),
+                  
+
+
+
+            child : new RaisedButton(
+                    textColor: Colors.white,
+                    color: Colors.blue,
+                      shape: new RoundedRectangleBorder(
+                                                borderRadius:
+                                                    new BorderRadius.circular(
+                                                        30.0)),
+                    onPressed: () async {
+                                    addAddress();
+                                  },
+                    child: new Text("+",
+                    style: TextStyle(
+                      fontSize: 20
+                    ),
+                    ),
+                  )),
+
+          ],
+
+          ),
+             
             new Container(
                 height: 165.0,
                 child: ListView.builder(
@@ -365,10 +435,10 @@ class check_out extends State<Checkout> {
                                             ),
                                             _verticalD(),
                                             new Checkbox(
-                                              value: checkboxValueA,
+                                              value:    address[index]["selected"] ? address[index]["selected"] : false,
                                               onChanged: (bool value) {
                                                 setState(() {
-                                                  checkboxValueA = value;
+                                                address[index]["selected"] = value;
                                                 });
                                               },
                                             ),
@@ -430,7 +500,7 @@ class check_out extends State<Checkout> {
             Container(
                 margin: EdgeInsets.only(
                     left: 12.0, top: 5.0, right: 12.0, bottom: 5.0),
-                height: 300,
+                height: 200,
                 child: ListView.builder(
                     itemCount: items.length,
                     itemBuilder: (BuildContext cont, int ind) {
