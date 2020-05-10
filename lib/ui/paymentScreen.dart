@@ -63,16 +63,17 @@ String orderId;
 
   paymentStatus(){
      var req= {
-      "PAYMENT_STATUS" :"success",
-      "ORDER_STATUS" :"success"
+      "PAYMENT_STATUS" :"pending",
+      "ORDER_STATUS" :"received",
+      "PAYMENT_MODE" :"COD"
     };
     editOrderById(req,orderId);
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
-        title: "Payment Success",
+        title: "Order Success",
         description:
-            "Your order has been placed successfully",
+            "Your order has been placed successfully , your order id is " + orderId,
         buttonText: "Okay",
       ),
     );

@@ -221,7 +221,7 @@ class oder_history extends State<Oder_History> {
                                                   margin:
                                                       EdgeInsets.only(top: 3.0),
                                                   child: Text(
-                                                    'Online',
+                                                     orderList[ind]['PAYMENT_MODE'],
                                                     style: TextStyle(
                                                         fontSize: 15.0,
                                                         color: Colors.black87),

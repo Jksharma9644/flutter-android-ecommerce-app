@@ -4,7 +4,7 @@ import 'dart:convert';
 
 
 getbaseUrl() {
-  var uaturl = 'https://ecommerce-backend-api.uc.r.appspot.com/';
+  var uaturl = 'https://ecommerce-backend-api.herokuapp.com/';
   final url = 'http://192.168.31.162:8000/';
-  return url;
+  return uaturl;
 }

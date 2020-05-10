@@ -12,18 +12,21 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:sawjigrocerryapp/scopedmodel/main.dart';
 class CategoryScreen extends StatefulWidget {
   final String productType;
+  final String productTypeName;
 
-  CategoryScreen({Key key, this.productType}) : super(key: key);
+  CategoryScreen({Key key, this.productType , this .productTypeName}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => Category(productType);
+  State<StatefulWidget> createState() => Category(productType, productTypeName);
 }
 
 class Category extends State<CategoryScreen> with TickerProviderStateMixin {
   String productType;
+  final String productTypeName;
+
   List<Products> cartItems;
 
-  Category(this.productType);
+  Category(this.productType ,this.productTypeName);
   List<Tab> _tabs = List<Tab>();
   List<Widget> _generalWidgets = List<Widget>();
   TabController _tabController;
@@ -120,7 +123,7 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
             },
           ),
           title: Text(
-            'Sawji Grocerry Store',
+           productTypeName,
             style: TextStyle(fontSize: 16.0),
           ),
           // actions: <Widget>[
@@ -190,7 +193,7 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                                       builder: (context) =>
                                           Cart_screen()));
                     },
-                    child: Stack(
+                     child: Stack(
                       children: <Widget>[
                         new IconButton(
                             icon: new Icon(
@@ -248,7 +251,7 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                   },
                 ),
                 title: Text(
-                  'Sawji Grocerry Store',
+                productTypeName,
                   style: TextStyle(fontSize: 16.0),
                 ),
                 bottom: PreferredSize(
@@ -260,8 +263,29 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                         controller: _tabController),
                     preferredSize: Size.fromHeight(30.0)),
                 actions: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
+              IconButton(
+                tooltip: 'Search',
+                icon: const Icon(Icons.search),
+                onPressed: () async {
+                  final int selected = await showSearch<int>(
+                    context: context,
+                    //delegate: _delegate,
+                  );
+                },
+              ),
+              new Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: new Container(
+                  height: 150.0,
+                  width: 30.0,
+                  child: new GestureDetector(
+                    onTap: () {
+                    Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          Cart_screen()));
+                    },
                     child: Stack(
                       children: <Widget>[
                         new IconButton(
@@ -273,46 +297,36 @@ class Category extends State<CategoryScreen> with TickerProviderStateMixin {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          Cart_screen()));
+                                      builder: (context) => Cart_screen()));
                             }),
-                        new Positioned(
-                            child: new Stack(
-                          children: <Widget>[
-                            new Icon(Icons.brightness_1,
-                                size: 20.0, color: Colors.orange.shade500),
-                              model.cartItemsCount == 0
-                                ? new Container()
-                                : new Positioned(
-                                    top: 4.0,
-                                    right: 5.5,
-                                    child: new Center(
-                                      child: new Text(
-                                        model.cartItemsCount.toString(),
-                                        style: new TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11.0,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    )),
-                          ],
-                        )),
+                        model.cartItemsCount == 0
+                            ? new Container()
+                            : new Positioned(
+                                child: new Stack(
+                                children: <Widget>[
+                                  new Icon(Icons.brightness_1,
+                                      size: 20.0,
+                                      color: Colors.orange.shade500),
+                                  new Positioned(
+                                      top: 4.0,
+                                      right: 5.5,
+                                      child: new Center(
+                                        child: new Text(
+                                         model.cartItemsCount.toString(),
+                                          style: new TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11.0,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      )),
+                                ],
+                              )),
                       ],
                     ),
-
-                    //  new IconButton(
-                    //     icon: new Icon(
-                    //       Icons.shopping_cart,
-                    //       color: Colors.black,
-                    //     ),
-                    //     onPressed: () {
-                    //       Navigator.push(
-                    //           context,
-                    //           MaterialPageRoute(
-                    //               builder: (context) => Cart_screen()));
-                    //     }),
                   ),
-                ],
+                ),
+              )
+            ],
               ),
               body: TabBarView(
                 controller: _tabController,

@@ -471,6 +471,7 @@ class Home extends State<HomeScreen> {
                                                   CategoryScreen(
                                                     productType:
                                                         snapshot.data[index].id,
+                                                    productTypeName : snapshot.data[index].type
                                                   )));
                                     },
                                     child: new Container(

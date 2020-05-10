@@ -149,6 +149,9 @@ class check_out extends State<Checkout> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
             content: Form(
               key: _formKey,
               child: Column(
@@ -178,7 +181,11 @@ class check_out extends State<Checkout> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: RaisedButton(
+                       shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
                       child: Text("Add Address"),
+                      
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
                           _formKey.currentState.save();

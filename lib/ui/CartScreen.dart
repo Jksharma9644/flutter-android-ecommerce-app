@@ -53,12 +53,20 @@ class Cart extends State<Cart_screen> {
   _buildCartProduct(int index, MainModel model) {
     return ListTile(
         contentPadding: EdgeInsets.all(20.0),
-        leading: Image.network(
+        leading:  model.cartList[index].images.length>0
+        ?Image.network(
           model.cartList[index].images[0].url,
           height: 250.0,
           width: 80.0,
           fit: BoxFit.contain,
-        ),
+        )
+        :Image.asset(
+        'images/no-images.png',
+        // package: destination.assetPackage,
+           height: 250.0,
+          width: 80.0,
+          fit: BoxFit.contain,
+      ),
         
         title: Text(
           model.cartList[index].name,
@@ -72,7 +80,7 @@ class Cart extends State<Cart_screen> {
              child: new Row(
              children: <Widget>[
           new Text(
-            'MRP : ₹${model.cartList[index].netPrice}',
+            'MRP : ₹${model.cartList[index].mrp}',
             textAlign: TextAlign.left,
             style: TextStyle(
                 color: Colors.orange,
@@ -118,7 +126,7 @@ class Cart extends State<Cart_screen> {
         trailing: new Container(
           child: Text(
             "₹ " +
-                (model.cartList[index].qty * model.cartList[index].netPrice)
+                (model.cartList[index].qty * int.parse(model.cartList[index].mrp))
                     .toString(),
             textAlign: TextAlign.center,
             style: TextStyle(
